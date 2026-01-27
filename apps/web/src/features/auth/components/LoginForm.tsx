@@ -1,5 +1,17 @@
 import { useState } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
+import { type User } from "@repo/types";
+
+const testUser: User = {
+  name: "name",
+  id: "some_id",
+  role: "admin",
+  pin: "343",
+  avatarUrl: "ljds",
+};
+
+console.log(testUser);
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
