@@ -7,7 +7,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: ({ location }) => {
-    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+    const isAuthenticated = localStorage.getItem("token");
 
     if (!isAuthenticated) {
       throw redirect({
@@ -22,7 +22,6 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function RouteComponent() {
-  console.log(1);
   return (
     <div className="flex h-screen">
       <aside className="w-64 border-r bg-muted/40 p-4">

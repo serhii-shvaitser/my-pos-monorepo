@@ -1,18 +1,10 @@
 import { useState } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { type User } from "@repo/types";
-
-const testUser: User = {
-  name: "name",
-  id: "some_id",
-  role: "admin",
-  pin: "343",
-  avatarUrl: "ljds",
-};
-
-console.log(testUser);
+import { useMutation } from "@tanstack/react-query";
+import { type PinLoginRequest, type AuthResponse } from "@repo/types";
 
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Card,
   CardContent,
@@ -24,6 +16,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+const loginWithPin = async (data: PinLoginRequest): Promise<AuthResponse> => {
+  const response = await fetch("/api/auth/pin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error("Invalid PIN");
+  }
+
+  return response.json();
+};
+
 export function LoginForm() {
   const navigate = useNavigate();
   const [pin, setPin] = useState("");
@@ -31,13 +37,26 @@ export function LoginForm() {
     from: "/login",
   });
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: loginWithPin,
+    onSuccess: (data) => {
+      // Store the token and user info
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Navigate to the dashboard or previous page
+      navigate({ to: redirectPath || "/" });
+    },
+    onError: () => {
+      alert("Невірний код! Спробуйте 1234 або 5555");
+      setPin("");
+    },
+  });
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pin === "1234") {
-      localStorage.setItem("isAuthenticated", "true");
-      navigate({ to: redirectPath });
-    } else {
-      alert("Невірний код! Спробуйте 1234");
+    if (pin.length === 4) {
+      mutate({ pin });
     }
   };
 
@@ -71,6 +90,7 @@ export function LoginForm() {
             type="submit"
             className="w-full bg-orange-600 hover:bg-orange-700"
           >
+            {isPending && <Spinner data-icon="inline-start" />}
             Увійти
           </Button>
         </CardFooter>
