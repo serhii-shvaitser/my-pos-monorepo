@@ -42,7 +42,7 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-[350px] shadow-xl">
+    <Card className="w-87 shadow-xl">
       <CardHeader className="space-y-1 text-center">
         <CardTitle className="text-2xl font-bold">KEEPER SYSTEM</CardTitle>
         <CardDescription>
