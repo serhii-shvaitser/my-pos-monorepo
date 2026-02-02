@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
-import { type PinLoginRequest, type AuthResponse } from "@repo/types";
+import { type PinLoginRequest } from "@repo/types";
+import { toast } from "sonner";
+import { authApi } from "@/lib/api";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -16,20 +18,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const loginWithPin = async (data: PinLoginRequest): Promise<AuthResponse> => {
-  const response = await fetch("/api/auth/pin", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    throw new Error("Invalid PIN");
-  }
-
-  return response.json();
-};
-
 export function LoginForm() {
   const navigate = useNavigate();
   const [pin, setPin] = useState("");
@@ -38,17 +26,16 @@ export function LoginForm() {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: loginWithPin,
+    mutationFn: (pin: PinLoginRequest) => authApi.loginWithPin(pin),
     onSuccess: (data) => {
-      // Store the token and user info
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-
-      // Navigate to the dashboard or previous page
       navigate({ to: redirectPath || "/" });
     },
     onError: () => {
-      alert("Невірний код! Спробуйте 1234 або 5555");
+      toast.error("Login error", {
+        description: "Login error description",
+      });
       setPin("");
     },
   });
@@ -89,6 +76,7 @@ export function LoginForm() {
           <Button
             type="submit"
             className="w-full bg-orange-600 hover:bg-orange-700"
+            disabled={isPending || pin.length != 4}
           >
             {isPending && <Spinner data-icon="inline-start" />}
             Увійти
