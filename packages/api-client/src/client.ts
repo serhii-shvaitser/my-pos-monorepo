@@ -1,0 +1,36 @@
+import axios, { AxiosInstance } from "axios";
+
+export interface ApiConfig {
+  baseURL: string;
+  getToken: () => string | null | Promise<string | null>;
+  onUnauthorized?: () => void;
+}
+
+export const createApiClient = ({
+  getToken,
+  onUnauthorized,
+}: ApiConfig): AxiosInstance => {
+  const instance = axios.create({
+    baseURL: "/api", // Or production URL
+  });
+
+  instance.interceptors.request.use(async (config) => {
+    const token = await getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+
+  instance.interceptors.response.use(
+    (res) => res,
+    (err) => {
+      if (err.response?.status === 401) {
+        onUnauthorized?.();
+      }
+      return Promise.reject(err);
+    },
+  );
+
+  return instance;
+};

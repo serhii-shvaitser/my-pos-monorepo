@@ -1,0 +1,11 @@
+{
+  "name": "@repo/api-client",
+  "version": "0.0.0",
+  "main": "./src/index.ts",
+  "private": true,
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@repo/types": "workspace:*",
+    "axios": "^1.13.4"
+  }
+}

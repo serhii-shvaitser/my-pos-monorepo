@@ -46,6 +46,15 @@ export interface User {
   id: string;
   name: string;
   role: UserRole;
+  permissions: string[];
+}
+
+// API
+export interface PinLoginRequest {
   pin: string;
-  avatarUrl: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  token: string;
 }
