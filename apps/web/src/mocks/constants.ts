@@ -1,6 +1,6 @@
-import { type User } from "@repo/types";
+import { type User, type Table } from "@repo/types";
 
-export const MOCK_USERS: Record<string, User> = {
+const MOCK_USERS: Record<string, User> = {
   "1234": {
     id: "w1",
     name: "Gordon Ramsay",
@@ -14,3 +14,56 @@ export const MOCK_USERS: Record<string, User> = {
     permissions: ["print_bill"],
   },
 };
+
+const MOCK_TABLES: Table[] = [
+  {
+    id: "123",
+    number: 1,
+    capacity: 4,
+    status: "free",
+  },
+  {
+    id: "123",
+    number: 1,
+    capacity: 4,
+    status: "free",
+  },
+  {
+    id: "123",
+    number: 1,
+    capacity: 4,
+    status: "free",
+  },
+  {
+    id: "123",
+    number: 1,
+    capacity: 4,
+    status: "free",
+  },
+  {
+    id: "123",
+    number: 1,
+    capacity: 4,
+    status: "free",
+  },
+  {
+    id: "123",
+    number: 1,
+    capacity: 4,
+    status: "free",
+  },
+  {
+    id: "123",
+    number: 1,
+    capacity: 4,
+    status: "free",
+  },
+  {
+    id: "123",
+    number: 1,
+    capacity: 4,
+    status: "free",
+  },
+];
+
+export { MOCK_USERS, MOCK_TABLES };
