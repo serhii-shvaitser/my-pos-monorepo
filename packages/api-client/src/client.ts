@@ -1,5 +1,6 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { type AxiosInstance } from "axios";
 
+// TODO: move to types
 export interface ApiConfig {
   baseURL: string;
   getToken: () => string | null | Promise<string | null>;
