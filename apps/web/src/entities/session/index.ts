@@ -1,2 +1,2 @@
-export { saveSession, clearSession, getToken } from "./lib";
+export { saveSession, clearSession } from "./lib";
 export { useSession } from "./model/useSession";
