@@ -8,11 +8,12 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedTablesRouteImport } from './routes/_authenticated/tables'
+import { Route as rootRouteImport } from './app/routes/__root'
+import { Route as LoginRouteImport } from './app/routes/login'
+import { Route as AuthenticatedRouteImport } from './app/routes/_authenticated'
+import { Route as AuthenticatedIndexRouteImport } from './app/routes/_authenticated/index'
+import { Route as AuthenticatedTablesRouteImport } from './app/routes/_authenticated/tables'
+import { Route as AuthenticatedOrdersRouteImport } from './app/routes/_authenticated/orders'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -33,14 +34,21 @@ const AuthenticatedTablesRoute = AuthenticatedTablesRouteImport.update({
   path: '/tables',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
+  '/orders': typeof AuthenticatedOrdersRoute
   '/tables': typeof AuthenticatedTablesRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/orders': typeof AuthenticatedOrdersRoute
   '/tables': typeof AuthenticatedTablesRoute
   '/': typeof AuthenticatedIndexRoute
 }
@@ -48,18 +56,20 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/_authenticated/tables': typeof AuthenticatedTablesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/tables'
+  fullPaths: '/' | '/login' | '/orders' | '/tables'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/tables' | '/'
+  to: '/login' | '/orders' | '/tables' | '/'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
+    | '/_authenticated/orders'
     | '/_authenticated/tables'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
@@ -99,15 +109,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTablesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/orders': {
+      id: '/_authenticated/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof AuthenticatedOrdersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedTablesRoute: typeof AuthenticatedTablesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedTablesRoute: AuthenticatedTablesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }

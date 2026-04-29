@@ -1,15 +1,9 @@
-// User, Table, Order, MenuItem,
+import { z } from "zod";
 
-export type OrderStatus =
-  | "pending"
-  | "preparing"
-  | "ready"
-  | "served"
-  | "paid"
-  | "cancelled";
+// Menu
 
 export interface MenuItem {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -18,10 +12,15 @@ export interface MenuItem {
   isAvailable: boolean;
 }
 
-export interface OrderItem extends MenuItem {
-  quantity: number;
-  comment?: string;
-}
+// Order
+
+export type OrderStatus =
+  | "pending"
+  | "preparing"
+  | "ready"
+  | "served"
+  | "paid"
+  | "cancelled";
 
 export interface Order {
   id: string;
@@ -32,13 +31,31 @@ export interface Order {
   createdAt: Date;
 }
 
-export interface Table {
-  id: number;
-  number: number;
-  capacity: number;
-  status: "free" | "occupied" | "reserved";
-  currentOrderId?: string;
+export interface OrderItem extends MenuItem {
+  quantity: number;
+  comment?: string;
 }
+
+// Table
+
+export const TableStatusSchema = z.enum(["free", "occupied", "reserved"]);
+
+export const TableSchema = z.object({
+  id: z.string(),
+  number: z.number(),
+  capacity: z.number(),
+  status: TableStatusSchema,
+  currentOrderId: z.string().optional(),
+});
+
+export const TablesResponseSchema = z.object({
+  tables: z.array(TableSchema),
+});
+
+export type TableStatus = z.infer<typeof TableStatusSchema>;
+export type Table = z.infer<typeof TableSchema>;
+
+// User
 
 export type UserRole = "admin" | "waiter" | "manager" | "cook";
 
@@ -58,3 +75,5 @@ export interface AuthResponse {
   user: User;
   token: string;
 }
+
+export type TablesResponse = z.infer<typeof TablesResponseSchema>;
