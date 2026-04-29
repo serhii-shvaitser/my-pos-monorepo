@@ -1,6 +1,6 @@
 import { http, HttpResponse, delay } from "msw";
-import { type AuthResponse } from "@repo/types";
-import { MOCK_USERS } from "./constants";
+import { type AuthResponse, type TablesResponse } from "@repo/types";
+import { MOCK_USERS, MOCK_TABLES } from "./constants";
 
 export const handlers = [
   http.post("/api/auth/pin", async ({ request }) => {
@@ -22,5 +22,16 @@ export const handlers = [
       user,
       token: "fake-jwt-token",
     } satisfies AuthResponse);
+  }),
+
+  http.get("/api/tables", async () => {
+    // Simulate network lag
+    await delay(2000);
+
+    const tables = MOCK_TABLES;
+
+    return HttpResponse.json({
+      tables,
+    } satisfies TablesResponse);
   }),
 ];
