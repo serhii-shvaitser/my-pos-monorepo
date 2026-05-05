@@ -3,7 +3,11 @@ import bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 import { staffTable, createDb } from "@repo/db";
 
-import { LoginRequestSchema } from "@repo/types";
+import {
+  LoginRequestSchema,
+  type AuthResponse,
+  type UserRole,
+} from "@repo/types";
 
 const db = createDb(process.env.DATABASE_URL!);
 
@@ -47,15 +51,17 @@ export async function authRoutes(app: FastifyInstance) {
     reply.setCookie("refreshToken", refreshToken, {
       path: "/",
       httpOnly: true,
-      secure: true,
-      sameSite: "strict",
+      secure: false,
+      sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7,
     });
 
-    return {
+    const responseBody: AuthResponse = {
       accessToken,
-      user: { name: user.name, role: user.role },
+      user: { name: user.name, role: user.role as UserRole },
     };
+
+    return responseBody;
   });
 
   app.post("/logout", async (request, reply) => {
