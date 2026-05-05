@@ -12,7 +12,10 @@ export const createApiClient = ({
   onUnauthorized,
 }: ApiConfig): AxiosInstance => {
   const instance = axios.create({
-    baseURL: "/api", // Or production URL
+    baseURL: "http://localhost:3001/api/v1",
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
 
   instance.interceptors.request.use(async (config) => {
