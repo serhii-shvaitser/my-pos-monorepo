@@ -2,39 +2,39 @@ import { z } from "zod";
 
 // Menu
 
-export interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  imageUrl: string;
-  isAvailable: boolean;
-}
+// export interface MenuItem {
+//   id: string;
+//   name: string;
+//   description: string;
+//   price: number;
+//   category: string;
+//   imageUrl: string;
+//   isAvailable: boolean;
+// }
 
 // Order
 
-export type OrderStatus =
-  | "pending"
-  | "preparing"
-  | "ready"
-  | "served"
-  | "paid"
-  | "cancelled";
+// export type OrderStatus =
+//   | "pending"
+//   | "preparing"
+//   | "ready"
+//   | "served"
+//   | "paid"
+//   | "cancelled";
 
-export interface Order {
-  id: string;
-  tableId: string;
-  items: OrderItem[];
-  status: OrderStatus;
-  totalPrice: number;
-  createdAt: Date;
-}
+// export interface Order {
+//   id: string;
+//   tableId: string;
+//   items: OrderItem[];
+//   status: OrderStatus;
+//   totalPrice: number;
+//   createdAt: Date;
+// }
 
-export interface OrderItem extends MenuItem {
-  quantity: number;
-  comment?: string;
-}
+// export interface OrderItem extends MenuItem {
+//   quantity: number;
+//   comment?: string;
+// }
 
 // Table
 
@@ -48,10 +48,6 @@ export const TableSchema = z.object({
   currentOrderId: z.string().optional(),
 });
 
-export const TablesResponseSchema = z.object({
-  tables: z.array(TableSchema),
-});
-
 export type TableStatus = z.infer<typeof TableStatusSchema>;
 export type Table = z.infer<typeof TableSchema>;
 
@@ -63,17 +59,24 @@ export interface User {
   id: string;
   name: string;
   role: UserRole;
-  permissions: string[];
 }
 
 // API
-export interface PinLoginRequest {
-  pin: string;
-}
+
+export const LoginRequestSchema = z.object({
+  code: z.string(),
+  pin: z.string().length(4, "Pin must be 4 digits"),
+});
+
+export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 
 export interface AuthResponse {
   user: User;
   token: string;
 }
+
+export const TablesResponseSchema = z.object({
+  tables: z.array(TableSchema),
+});
 
 export type TablesResponse = z.infer<typeof TablesResponseSchema>;
