@@ -56,12 +56,18 @@ export type Table = z.infer<typeof TableSchema>;
 export type UserRole = "admin" | "waiter" | "manager" | "cook";
 
 export interface User {
-  id: string;
   name: string;
   role: UserRole;
 }
 
 // API
+
+export interface ApiConfig {
+  baseURL: string;
+  getToken: () => string | null | Promise<string | null>;
+  refreshToken: () => Promise<string | null>;
+  onUnauthorized?: () => void;
+}
 
 export const LoginRequestSchema = z.object({
   code: z.string(),
@@ -72,7 +78,7 @@ export type LoginRequest = z.infer<typeof LoginRequestSchema>;
 
 export interface AuthResponse {
   user: User;
-  token: string;
+  accessToken: string;
 }
 
 export const TablesResponseSchema = z.object({
