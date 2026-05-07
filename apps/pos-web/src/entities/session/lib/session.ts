@@ -1,11 +1,10 @@
-import { type SessionData } from "../model/types";
+import { type SessionData } from "@repo/types";
+import { useSessionStore } from "../model/store";
 
-export function saveSession({ token, user }: SessionData) {
-  localStorage.setItem("token", token);
-  localStorage.setItem("user", JSON.stringify(user));
+export function saveSession({ accessToken }: SessionData) {
+  useSessionStore.getState().setAccessToken(accessToken);
 }
 
 export function clearSession() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
+  useSessionStore.getState().setAccessToken(null);
 }
