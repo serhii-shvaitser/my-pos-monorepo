@@ -1,38 +1,97 @@
-import axios, { type AxiosInstance } from "axios";
-
-// TODO: move to types
-export interface ApiConfig {
-  baseURL: string;
-  getToken: () => string | null | Promise<string | null>;
-  onUnauthorized?: () => void;
-}
+import axios, { type AxiosError, type AxiosInstance } from "axios";
+import type { ApiConfig, FailedRequest } from "@repo/types";
 
 export const createApiClient = ({
-  getToken,
+  baseURL,
+  getAccessToken,
+  refreshToken,
   onUnauthorized,
+  onTokenRefreshed,
 }: ApiConfig): AxiosInstance => {
   const instance = axios.create({
-    baseURL: "http://localhost:3001/api/v1",
+    baseURL,
     headers: {
       "Content-Type": "application/json",
     },
+    withCredentials: true,
   });
 
   instance.interceptors.request.use(async (config) => {
-    const token = await getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const accessToken = getAccessToken();
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   });
 
+  let isRefreshing = false;
+  let failedQueue: FailedRequest[] = [];
+
   instance.interceptors.response.use(
     (res) => res,
-    (err) => {
-      if (err.response?.status === 401) {
-        onUnauthorized?.();
+    (err: AxiosError) => {
+      if (err.response?.status === 401 && err.config?.url !== "/auth/login") {
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({
+              onSuccess: (accessToken: string) => {
+                if (!err.config) {
+                  reject(err);
+                  return;
+                }
+                err.config.headers.set(
+                  "Authorization",
+                  `Bearer ${accessToken}`,
+                );
+                resolve(instance(err.config));
+              },
+              onFailure: () => {
+                reject(err);
+              },
+            });
+          });
+        } else {
+          isRefreshing = true;
+
+          return refreshToken()
+            .then((newAccessToken) => {
+              if (!newAccessToken || !err.config) {
+                throw new Error("No accessToken received");
+              }
+
+              onTokenRefreshed(newAccessToken);
+
+              err.config.headers.set(
+                "Authorization",
+                `Bearer ${newAccessToken}`,
+              );
+
+              if (failedQueue.length > 0) {
+                failedQueue.forEach((pendingRequest) =>
+                  pendingRequest.onSuccess(newAccessToken),
+                );
+                failedQueue = [];
+              }
+
+              return instance(err.config);
+            })
+            .catch(() => {
+              if (failedQueue.length > 0) {
+                failedQueue.forEach((pendingRequest) =>
+                  pendingRequest.onFailure(),
+                );
+                failedQueue = [];
+              }
+
+              onUnauthorized();
+
+              return Promise.reject(err);
+            })
+            .finally(() => {
+              isRefreshing = false;
+            });
+        }
       }
-      return Promise.reject(err);
     },
   );
 
