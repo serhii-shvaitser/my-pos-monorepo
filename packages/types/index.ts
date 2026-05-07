@@ -64,9 +64,10 @@ export interface User {
 
 export interface ApiConfig {
   baseURL: string;
-  getToken: () => string | null | Promise<string | null>;
+  getAccessToken: () => string | null;
   refreshToken: () => Promise<string>;
-  onUnauthorized?: () => void;
+  onUnauthorized: () => void;
+  onTokenRefreshed: (newToken: string) => void;
 }
 
 export const LoginCredentialsSchema = z.object({
@@ -86,3 +87,8 @@ export const TablesResponseSchema = z.object({
 });
 
 export type TablesResponse = z.infer<typeof TablesResponseSchema>;
+
+export interface FailedRequest {
+  onSuccess: (newAccessToken: string) => void;
+  onFailure: () => void;
+}
