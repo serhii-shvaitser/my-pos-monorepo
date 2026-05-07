@@ -76,7 +76,7 @@ export const LoginCredentialsSchema = z.object({
 
 export type LoginCredentials = z.infer<typeof LoginCredentialsSchema>;
 
-export interface AuthResponse {
+export interface SessionData {
   user: User;
   accessToken: string;
 }
