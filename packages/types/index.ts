@@ -65,16 +65,16 @@ export interface User {
 export interface ApiConfig {
   baseURL: string;
   getToken: () => string | null | Promise<string | null>;
-  refreshToken: () => Promise<string | null>;
+  refreshToken: () => Promise<string>;
   onUnauthorized?: () => void;
 }
 
-export const LoginRequestSchema = z.object({
+export const LoginCredentialsSchema = z.object({
   code: z.string(),
   pin: z.string().length(4, "Pin must be 4 digits"),
 });
 
-export type LoginRequest = z.infer<typeof LoginRequestSchema>;
+export type LoginCredentials = z.infer<typeof LoginCredentialsSchema>;
 
 export interface AuthResponse {
   user: User;
