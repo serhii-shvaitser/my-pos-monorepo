@@ -15,18 +15,18 @@ import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 
 export function LoginForm() {
+  const [code, setCode] = useState("");
   const [pin, setPin] = useState("");
   const { login, isPending } = useLoginByPin({
     onLoginError: () => {
+      setCode("");
       setPin("");
     },
   });
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: React.SubmitEvent) => {
     e.preventDefault();
-    if (pin.length === 4) {
-      login({ pin });
-    }
+    login({ code, pin });
   };
 
   return (
@@ -41,13 +41,24 @@ export function LoginForm() {
         <CardContent className="grid gap-4">
           <div className="grid gap-2 text-center">
             <Label htmlFor="pin" className="sr-only">
-              PIN Code
+              Waiter code
+            </Label>
+            <Input
+              id="code"
+              autoFocus
+              className="text-center text-2xl tracking-[1em]"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2 text-center">
+            <Label htmlFor="pin" className="sr-only">
+              Waiter pin
             </Label>
             <Input
               id="pin"
               type="password"
               placeholder="****"
-              autoFocus
               className="text-center text-2xl tracking-[1em]"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
