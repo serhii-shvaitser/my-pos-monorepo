@@ -56,23 +56,30 @@ export type Table = z.infer<typeof TableSchema>;
 export type UserRole = "admin" | "waiter" | "manager" | "cook";
 
 export interface User {
-  id: string;
   name: string;
   role: UserRole;
 }
 
 // API
 
-export const LoginRequestSchema = z.object({
+export interface ApiConfig {
+  baseURL: string;
+  getAccessToken: () => string | null;
+  refreshToken: () => Promise<string>;
+  onUnauthorized: () => void;
+  onTokenRefreshed: (newToken: string) => void;
+}
+
+export const LoginCredentialsSchema = z.object({
   code: z.string(),
   pin: z.string().length(4, "Pin must be 4 digits"),
 });
 
-export type LoginRequest = z.infer<typeof LoginRequestSchema>;
+export type LoginCredentials = z.infer<typeof LoginCredentialsSchema>;
 
-export interface AuthResponse {
+export interface SessionData {
   user: User;
-  token: string;
+  accessToken: string;
 }
 
 export const TablesResponseSchema = z.object({
@@ -80,3 +87,8 @@ export const TablesResponseSchema = z.object({
 });
 
 export type TablesResponse = z.infer<typeof TablesResponseSchema>;
+
+export interface FailedRequest {
+  onSuccess: (newAccessToken: string) => void;
+  onFailure: () => void;
+}

@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 import { authApi } from "@/shared/lib/api";
 import { saveSession } from "@/entities/session";
-import { type PinLoginRequest, type AuthResponse } from "@repo/types";
+import { type LoginCredentials, type SessionData } from "@repo/types";
 import { type LoginOptions } from "./types";
 
 export function useLoginByPin({ onLoginError }: LoginOptions = {}) {
@@ -14,11 +14,11 @@ export function useLoginByPin({ onLoginError }: LoginOptions = {}) {
   });
 
   const { mutate, isPending } = useMutation<
-    AuthResponse,
+    SessionData,
     Error,
-    PinLoginRequest
+    LoginCredentials
   >({
-    mutationFn: (pin) => authApi.loginWithPin(pin),
+    mutationFn: (credentials) => authApi.login(credentials),
     onSuccess: (data) => {
       saveSession(data);
       navigate({ to: redirectPath || "/" });
