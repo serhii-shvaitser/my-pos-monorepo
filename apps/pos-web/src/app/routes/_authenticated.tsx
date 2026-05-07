@@ -6,18 +6,25 @@ import {
   Link,
   redirect,
 } from "@tanstack/react-router";
+import { useSessionStore } from "@/entities/session";
+
+import { authApi } from "@/shared/lib/api";
 
 export const Route = createFileRoute("/_authenticated")({
-  beforeLoad: ({ location }) => {
-    const isAuthenticated = localStorage.getItem("token");
-
-    if (!isAuthenticated) {
-      throw redirect({
-        to: "/login",
-        search: {
-          redirect: location.href,
-        },
-      });
+  beforeLoad: async ({ location }) => {
+    const { accessToken } = useSessionStore.getState();
+    if (!accessToken) {
+      try {
+        const data = await authApi.refreshToken();
+        useSessionStore.getState().setAccessToken(data.accessToken);
+      } catch {
+        throw redirect({
+          to: "/login",
+          search: {
+            redirect: location.href,
+          },
+        });
+      }
     }
   },
   component: RouteComponent,
