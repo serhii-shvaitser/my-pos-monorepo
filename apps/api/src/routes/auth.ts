@@ -5,7 +5,7 @@ import { staffTable, createDb } from "@repo/db";
 
 import {
   LoginCredentialsSchema,
-  type AuthResponse,
+  type SessionData,
   type UserRole,
 } from "@repo/types";
 
@@ -76,7 +76,7 @@ export async function authRoutes(app: FastifyInstance) {
       maxAge: 60 * 60 * 24 * 7,
     });
 
-    const responseBody: AuthResponse = {
+    const responseBody: SessionData = {
       accessToken,
       user: { name: user.name, role: user.role as UserRole },
     };
