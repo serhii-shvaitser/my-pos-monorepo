@@ -1,3 +1,4 @@
-import { type AuthResponse } from "@repo/types";
-
-export type SessionData = AuthResponse;
+export interface SessionState {
+  accessToken: string | null;
+  setAccessToken: (accessToken: string | null) => void;
+}
