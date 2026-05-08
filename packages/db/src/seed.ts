@@ -3,6 +3,7 @@ import "dotenv/config";
 import { createDb } from "./client";
 import { staffTable } from "./schema";
 import bcrypt from "bcrypt";
+import type { NewStaff } from "./schema";
 
 async function main() {
   const db = createDb(process.env.DATABASE_URL!);
@@ -10,14 +11,15 @@ async function main() {
   console.log("Створюю офіціанта...");
 
   const saltRounds = 10;
-  const hashedPin = await bcrypt.hash("1234", saltRounds);
+  const hashedPin = await bcrypt.hash("5555", saltRounds);
 
-  await db.insert(staffTable).values({
-    code: "W01",
-    name: "Кіріній",
+  const newUser: NewStaff = {
+    code: "W02",
+    name: "Пердіній",
     pinHash: hashedPin,
-    role: "waiter",
-  });
+  };
+
+  await db.insert(staffTable).values(newUser);
 
   console.log("Офіціанта додано!");
   process.exit(0);
