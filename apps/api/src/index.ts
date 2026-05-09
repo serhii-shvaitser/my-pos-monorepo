@@ -4,11 +4,24 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import cookie from "@fastify/cookie";
+import {
+  serializerCompiler,
+  validatorCompiler,
+  ZodTypeProvider,
+} from "fastify-type-provider-zod";
 
-import { authRoutes } from "./routes/auth";
+import { createDb } from "@repo/db";
+import { authRoutes, tablesRoutes } from "./routes";
 
 const start = async () => {
-  const app = Fastify({ logger: true });
+  const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
+
+  app.setValidatorCompiler(validatorCompiler);
+  app.setSerializerCompiler(serializerCompiler);
+
+  const db = createDb(process.env.DATABASE_URL!);
+
+  app.decorate("db", db);
 
   await app.register(cors, { origin: true, credentials: true });
 
@@ -34,10 +47,28 @@ const start = async () => {
 
   await app.register(authRoutes, { prefix: "/api/v1/auth" });
 
+  await app.register(
+    async (privateInstance) => {
+      privateInstance.addHook("onRequest", async (request, reply) => {
+        try {
+          await request.jwtVerify();
+        } catch (err) {
+          reply.send(err);
+        }
+      });
+
+      await privateInstance.register(tablesRoutes);
+    },
+    { prefix: "/api/v1" },
+  );
+
   const port = Number(process.env.PORT ?? 3001);
 
   await app.listen({ port, host: "0.0.0.0" });
 };
 
 // Top-level await workaround
-start();
+start().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
