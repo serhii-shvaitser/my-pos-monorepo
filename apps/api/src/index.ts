@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import Fastify from "fastify";
+import Fastify, { FastifyError } from "fastify";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import cookie from "@fastify/cookie";
@@ -18,6 +18,23 @@ const start = async () => {
 
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+
+  app.setErrorHandler((error: FastifyError, request, reply) => {
+    request.log.error(error);
+
+    if (error.validation) {
+      return reply.status(400).send({
+        error: "Bad Request",
+        message: "Validation failed",
+        details: error.validation,
+      });
+    }
+
+    return reply.status(error.statusCode || 500).send({
+      error: error.name,
+      message: error.message,
+    });
+  });
 
   const db = createDb(process.env.DATABASE_URL!);
 

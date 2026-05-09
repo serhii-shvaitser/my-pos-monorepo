@@ -18,19 +18,11 @@ export async function tablesRoutes(app: FastifyZod) {
       },
     },
     async (request, reply) => {
-      try {
-        const tables = await app.db
-          .select()
-          .from(tablesTable)
-          .orderBy(tablesTable.number);
-        return reply.code(200).send(tables);
-      } catch (err) {
-        app.log.error(err);
-        return reply.code(500).send({
-          error: "Unable to load tables",
-          message: err instanceof Error ? err.message : "Unknown error",
-        });
-      }
+      const tables = await app.db
+        .select()
+        .from(tablesTable)
+        .orderBy(tablesTable.number);
+      return reply.code(200).send(tables);
     },
   );
   app.post(
@@ -43,17 +35,12 @@ export async function tablesRoutes(app: FastifyZod) {
     async (request, reply) => {
       const data = request.body;
 
-      try {
-        const [newTable] = await app.db
-          .insert(tablesTable)
-          .values(data)
-          .returning();
+      const [newTable] = await app.db
+        .insert(tablesTable)
+        .values(data)
+        .returning();
 
-        return reply.code(201).send(newTable);
-      } catch (err) {
-        app.log.error(err);
-        return reply.code(500).send({ error: "Table creation error" });
-      }
+      return reply.code(201).send(newTable);
     },
   );
   app.delete(
@@ -64,28 +51,14 @@ export async function tablesRoutes(app: FastifyZod) {
       },
     },
     async (request, reply) => {
-      try {
-        const { id } = request.params;
+      const { id } = request.params;
 
-        const deletedTables = await app.db
-          .delete(tablesTable)
-          .where(eq(tablesTable.id, id))
-          .returning();
+      await app.db
+        .delete(tablesTable)
+        .where(eq(tablesTable.id, id))
+        .returning();
 
-        if (deletedTables.length === 0) {
-          return reply.status(404).send({
-            error: "Table not found",
-          });
-        }
-
-        return reply.code(204).send({});
-      } catch (err) {
-        app.log.error(err);
-        if (err instanceof Error && err.message.includes("uuid")) {
-          return reply.status(400).send({ error: "Invalid ID format" });
-        }
-        return reply.code(500).send({ error: "Couldn't delete the table" });
-      }
+      return reply.code(204).send();
     },
   );
   app.patch(
@@ -93,29 +66,33 @@ export async function tablesRoutes(app: FastifyZod) {
     {
       schema: {
         params: z.object({ id: z.uuid() }),
-        body: CreateTableSchema.partial(),
+        body: CreateTableSchema.partial().strict(),
       },
     },
     async (request, reply) => {
-      try {
-        const { id } = request.params;
-        const data = request.body;
+      const { id } = request.params;
+      const data = request.body;
 
-        const [updatedTable] = await app.db
-          .update(tablesTable)
-          .set(data)
-          .where(eq(tablesTable.id, id))
-          .returning();
-
-        if (!updatedTable) {
-          return reply.code(404).send({ error: "Стіл не знайдено" });
-        }
-
-        return reply.code(200).send(updatedTable);
-      } catch (err) {
-        app.log.error(err);
-        return reply.code(500).send({ error: "Couldn't update the table" });
+      if (!data || Object.keys(data).length === 0) {
+        return reply.code(400).send({
+          error: "Bad Request",
+          message: "No data provided to update",
+        });
       }
+
+      const [updatedTable] = await app.db
+        .update(tablesTable)
+        .set(data)
+        .where(eq(tablesTable.id, id))
+        .returning();
+
+      if (!updatedTable) {
+        return reply
+          .code(404)
+          .send({ error: "Not Found", message: "Table not found" });
+      }
+
+      return reply.code(200).send(updatedTable);
     },
   );
 }
