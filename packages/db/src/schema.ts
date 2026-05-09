@@ -1,4 +1,4 @@
-import { createSelectSchema } from "drizzle-zod";
+import { createSelectSchema, createInsertSchema } from "drizzle-zod";
 
 import {
   pgTable,
@@ -88,3 +88,4 @@ export type Staff = typeof staffTable.$inferSelect;
 export type NewStaff = typeof staffTable.$inferInsert;
 
 export const TableSchema = createSelectSchema(tablesTable);
+export const CreateTableSchema = createInsertSchema(tablesTable);
