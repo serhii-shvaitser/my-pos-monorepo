@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
-import { staffTable, createDb } from "@repo/db";
+import { staffTable } from "@repo/db";
 
 import {
   LoginCredentialsSchema,
@@ -9,27 +9,7 @@ import {
   type UserRole,
 } from "@repo/types";
 
-const db = createDb(process.env.DATABASE_URL!);
-
 export async function authRoutes(app: FastifyInstance) {
-  app.get(
-    "/test-protected",
-    {
-      onRequest: [
-        async (request, reply) => {
-          try {
-            await request.jwtVerify(); // Перевірка access токена
-          } catch (err) {
-            reply.send(err);
-          }
-        },
-      ],
-    },
-    async () => {
-      return { message: "Ви авторизовані! Access Token працює." };
-    },
-  );
-
   app.post("/login", async (request, reply) => {
     const authRequestValidation = LoginCredentialsSchema.safeParse(
       request.body,
@@ -44,7 +24,7 @@ export async function authRoutes(app: FastifyInstance) {
 
     const { code, pin } = authRequestValidation.data;
 
-    const user = await db
+    const user = await app.db
       .select()
       .from(staffTable)
       .where(eq(staffTable.code, code))
@@ -63,7 +43,7 @@ export async function authRoutes(app: FastifyInstance) {
 
     const accessToken = app.jwt.sign(
       { id: user.id, role: user.role },
-      { expiresIn: "10s" },
+      { expiresIn: "30m" },
     );
 
     const refreshToken = app.jwt.sign({ id: user.id }, { expiresIn: "7d" });
@@ -105,7 +85,7 @@ export async function authRoutes(app: FastifyInstance) {
     try {
       const decodedRefreshToken = app.jwt.verify<{ id: string }>(refreshToken);
 
-      const user = await db
+      const user = await app.db
         .select()
         .from(staffTable)
         .where(eq(staffTable.id, decodedRefreshToken.id))
@@ -118,7 +98,7 @@ export async function authRoutes(app: FastifyInstance) {
 
       const accessToken = app.jwt.sign(
         { id: user.id, role: user.role },
-        { expiresIn: "10s" },
+        { expiresIn: "30m" },
       );
 
       return { accessToken };
