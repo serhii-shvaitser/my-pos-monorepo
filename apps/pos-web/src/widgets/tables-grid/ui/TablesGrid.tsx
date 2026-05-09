@@ -9,12 +9,12 @@ export function TablesGrid() {
   }
 
   if (isError) {
-    return <p>Something went wrong {error.message}</p>;
+    return <p>Something went wrong {error?.message}</p>;
   }
 
   return (
     <div className="flex flex-wrap gap-2">
-      {data?.tables.map((table) => (
+      {data?.map((table) => (
         <TableCard key={table.id} tableData={table} />
       ))}
     </div>

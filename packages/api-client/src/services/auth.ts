@@ -1,4 +1,4 @@
-import { type AxiosInstance } from "axios";
+import axios, { type AxiosInstance } from "axios";
 import { type LoginCredentials, type SessionData } from "@repo/types";
 
 export const createAuthService = (client: AxiosInstance) => ({
@@ -8,40 +8,25 @@ export const createAuthService = (client: AxiosInstance) => ({
   },
   refreshToken: async () => {
     try {
-      const response = await fetch(
+      const response = await axios.get(
         "http://localhost:3001/api/v1/auth/refresh",
         {
-          method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: "include",
+          withCredentials: true,
         },
       );
 
-      if (!response.ok) {
-        throw new Error("Refresh failed with status: " + response.status);
-      }
-      const data = await response.json();
+      const data = response.data;
       return data.accessToken;
     } catch (error) {
+      // TODO: handle error
       console.error("AuthApi.refreshToken error:", error);
       throw error;
     }
   },
   logout: async () => {
     await client.post("/auth/logout");
-  },
-  test: async () => {
-    try {
-      const { data } = await client.get("/auth/test-protected", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      return data;
-    } catch (error) {
-      throw new Error("test failed");
-    }
   },
 });
