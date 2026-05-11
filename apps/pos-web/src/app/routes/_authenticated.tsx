@@ -18,10 +18,11 @@ export const Route = createFileRoute("/_authenticated")({
         const data = await authApi.refreshToken();
         useSessionStore.getState().setAccessToken(data.accessToken);
       } catch {
+        const redirectPath = `${location.pathname}${location.search}${location.hash}`;
         throw redirect({
           to: "/login",
           search: {
-            redirect: location.href,
+            redirect: redirectPath,
           },
         });
       }
