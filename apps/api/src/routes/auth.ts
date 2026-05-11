@@ -10,6 +10,14 @@ import {
 } from "@repo/types";
 
 export async function authRoutes(app: FastifyZod) {
+  const isProduction = process.env.NODE_ENV === "production";
+  const refreshCookieOptions = {
+    path: "/",
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "strict" : "lax",
+  } as const;
+
   app.post(
     "/login",
     {
@@ -51,10 +59,7 @@ export async function authRoutes(app: FastifyZod) {
       const refreshToken = app.jwt.sign({ id: user.id }, { expiresIn: "7d" });
 
       reply.setCookie("refreshToken", refreshToken, {
-        path: "/",
-        httpOnly: true,
-        secure: false,
-        sameSite: "lax",
+        ...refreshCookieOptions,
         maxAge: 60 * 60 * 24 * 7,
       });
 
@@ -69,12 +74,7 @@ export async function authRoutes(app: FastifyZod) {
 
   app.post("/logout", async (request, reply) => {
     reply
-      .clearCookie("refreshToken", {
-        path: "/",
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-      })
+      .clearCookie("refreshToken", refreshCookieOptions)
       .send("Logout successfully");
   });
 
