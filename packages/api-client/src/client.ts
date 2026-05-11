@@ -92,6 +92,8 @@ export const createApiClient = ({
             });
         }
       }
+
+      return Promise.reject(err);
     },
   );
 
