@@ -13,7 +13,7 @@ export function TablesGrid() {
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="grid grid-cols-4 gap-2">
       {data?.map((table) => (
         <TableCard key={table.id} tableData={table} />
       ))}
