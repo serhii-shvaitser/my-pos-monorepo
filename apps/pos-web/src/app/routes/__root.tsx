@@ -12,7 +12,6 @@ function RootComponent() {
     <React.Fragment>
       <Outlet />
       <Toaster position="top-center" />
-      <p>hello</p>
       <TanStackRouterDevtools />
     </React.Fragment>
   );
