@@ -21,7 +21,9 @@ export function useLoginByPin({ onLoginError }: LoginOptions = {}) {
     mutationFn: (credentials) => authApi.login(credentials),
     onSuccess: (data) => {
       saveSession(data);
-      navigate({ to: redirectPath || "/" });
+      const safeRedirect =
+        redirectPath && redirectPath.startsWith("/") ? redirectPath : "/";
+      navigate({ to: safeRedirect });
     },
     onError: (error) => {
       console.error(error.message);

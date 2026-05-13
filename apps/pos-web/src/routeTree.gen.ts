@@ -12,8 +12,9 @@ import { Route as rootRouteImport } from './app/routes/__root'
 import { Route as LoginRouteImport } from './app/routes/login'
 import { Route as AuthenticatedRouteImport } from './app/routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './app/routes/_authenticated/index'
-import { Route as AuthenticatedTablesRouteImport } from './app/routes/_authenticated/tables'
 import { Route as AuthenticatedOrdersRouteImport } from './app/routes/_authenticated/orders'
+import { Route as AuthenticatedTablesIndexRouteImport } from './app/routes/_authenticated/tables/index'
+import { Route as AuthenticatedTablesTableIdRouteImport } from './app/routes/_authenticated/tables/$tableId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -29,49 +30,60 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedTablesRoute = AuthenticatedTablesRouteImport.update({
-  id: '/tables',
-  path: '/tables',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedTablesIndexRoute =
+  AuthenticatedTablesIndexRouteImport.update({
+    id: '/tables/',
+    path: '/tables/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTablesTableIdRoute =
+  AuthenticatedTablesTableIdRouteImport.update({
+    id: '/tables/$tableId',
+    path: '/tables/$tableId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
   '/orders': typeof AuthenticatedOrdersRoute
-  '/tables': typeof AuthenticatedTablesRoute
+  '/tables/$tableId': typeof AuthenticatedTablesTableIdRoute
+  '/tables/': typeof AuthenticatedTablesIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/orders': typeof AuthenticatedOrdersRoute
-  '/tables': typeof AuthenticatedTablesRoute
   '/': typeof AuthenticatedIndexRoute
+  '/tables/$tableId': typeof AuthenticatedTablesTableIdRoute
+  '/tables': typeof AuthenticatedTablesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
-  '/_authenticated/tables': typeof AuthenticatedTablesRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/tables/$tableId': typeof AuthenticatedTablesTableIdRoute
+  '/_authenticated/tables/': typeof AuthenticatedTablesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/orders' | '/tables'
+  fullPaths: '/' | '/login' | '/orders' | '/tables/$tableId' | '/tables/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/orders' | '/tables' | '/'
+  to: '/login' | '/orders' | '/' | '/tables/$tableId' | '/tables'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
     | '/_authenticated/orders'
-    | '/_authenticated/tables'
     | '/_authenticated/'
+    | '/_authenticated/tables/$tableId'
+    | '/_authenticated/tables/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -102,13 +114,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/tables': {
-      id: '/_authenticated/tables'
-      path: '/tables'
-      fullPath: '/tables'
-      preLoaderRoute: typeof AuthenticatedTablesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/orders': {
       id: '/_authenticated/orders'
       path: '/orders'
@@ -116,19 +121,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrdersRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/tables/': {
+      id: '/_authenticated/tables/'
+      path: '/tables'
+      fullPath: '/tables/'
+      preLoaderRoute: typeof AuthenticatedTablesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/tables/$tableId': {
+      id: '/_authenticated/tables/$tableId'
+      path: '/tables/$tableId'
+      fullPath: '/tables/$tableId'
+      preLoaderRoute: typeof AuthenticatedTablesTableIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
-  AuthenticatedTablesRoute: typeof AuthenticatedTablesRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedTablesTableIdRoute: typeof AuthenticatedTablesTableIdRoute
+  AuthenticatedTablesIndexRoute: typeof AuthenticatedTablesIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
-  AuthenticatedTablesRoute: AuthenticatedTablesRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedTablesTableIdRoute: AuthenticatedTablesTableIdRoute,
+  AuthenticatedTablesIndexRoute: AuthenticatedTablesIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

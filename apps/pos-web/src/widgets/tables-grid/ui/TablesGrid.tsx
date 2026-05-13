@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { TableCard } from "@/entities/table";
 import { useTables } from "@/entities/table/api";
 
@@ -13,9 +14,11 @@ export function TablesGrid() {
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="grid grid-cols-4 gap-2">
       {data?.map((table) => (
-        <TableCard key={table.id} tableData={table} />
+        <Link to={table.id} key={table.id}>
+          <TableCard tableData={table} />
+        </Link>
       ))}
     </div>
   );
