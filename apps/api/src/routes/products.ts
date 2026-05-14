@@ -1,50 +1,47 @@
 import { FastifyZod, ErrorSchema } from "../types";
 import { eq } from "drizzle-orm";
-import { tablesTable, CreateTableSchema, TableSchema } from "@repo/db";
+import { productsTable, CreateProductSchema, ProductSchema } from "@repo/db";
 import { z } from "zod";
 
-export async function tablesRoutes(app: FastifyZod) {
+export async function productsRoutes(app: FastifyZod) {
   app.get(
-    "/tables",
+    "/products",
     {
       schema: {
         response: {
-          200: z.array(TableSchema),
+          200: z.array(ProductSchema),
         },
       },
     },
     async (request, reply) => {
-      const tables = await app.db
+      const products = await app.db
         .select()
-        .from(tablesTable)
-        .orderBy(tablesTable.number);
+        .from(productsTable)
+        .orderBy(productsTable.name);
 
-      return reply.code(200).send(tables);
+      return reply.code(200).send(products);
     },
   );
   app.post(
-    "/tables",
+    "/products",
     {
       schema: {
-        body: CreateTableSchema,
-        response: {
-          201: TableSchema,
-        },
+        body: CreateProductSchema,
       },
     },
     async (request, reply) => {
       const data = request.body;
 
-      const [newTable] = await app.db
-        .insert(tablesTable)
+      const [newProduct] = await app.db
+        .insert(productsTable)
         .values(data)
         .returning();
 
-      return reply.code(201).send(newTable);
+      return reply.code(201).send(newProduct);
     },
   );
   app.delete(
-    "/tables/:id",
+    "/products/:id",
     {
       schema: {
         params: z.object({ id: z.uuid() }),
@@ -52,19 +49,19 @@ export async function tablesRoutes(app: FastifyZod) {
     },
     async (request, reply) => {
       const { id } = request.params;
-      await app.db.delete(tablesTable).where(eq(tablesTable.id, id));
+      await app.db.delete(productsTable).where(eq(productsTable.id, id));
 
       return reply.code(204).send();
     },
   );
   app.patch(
-    "/tables/:id",
+    "/products/:id",
     {
       schema: {
         params: z.object({ id: z.uuid() }),
-        body: CreateTableSchema.partial().strict(),
+        body: CreateProductSchema.partial().strict(),
         response: {
-          201: TableSchema,
+          201: ProductSchema,
           400: ErrorSchema,
           404: ErrorSchema,
         },
@@ -82,20 +79,20 @@ export async function tablesRoutes(app: FastifyZod) {
         });
       }
 
-      const [updatedTable] = await app.db
-        .update(tablesTable)
+      const [updatedProduct] = await app.db
+        .update(productsTable)
         .set(data)
-        .where(eq(tablesTable.id, id))
+        .where(eq(productsTable.id, id))
         .returning();
 
       // TODO: refactor this check
-      if (!updatedTable) {
+      if (!updatedProduct) {
         return reply
           .code(404)
-          .send({ error: "Not Found", message: "Table not found" });
+          .send({ error: "Not Found", message: "Product not found" });
       }
 
-      return reply.code(201).send(updatedTable);
+      return reply.code(201).send(updatedProduct);
     },
   );
 }

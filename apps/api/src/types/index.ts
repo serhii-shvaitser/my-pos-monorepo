@@ -6,6 +6,7 @@ import {
   RawServerDefault,
 } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
+import { z } from "zod";
 
 export type FastifyZod = FastifyInstance<
   RawServerDefault,
@@ -14,3 +15,8 @@ export type FastifyZod = FastifyInstance<
   FastifyBaseLogger,
   ZodTypeProvider
 >;
+
+export const ErrorSchema = z.object({
+  error: z.string(),
+  message: z.string(),
+});

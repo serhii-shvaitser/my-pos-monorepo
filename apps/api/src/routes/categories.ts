@@ -1,50 +1,54 @@
 import { FastifyZod, ErrorSchema } from "../types";
 import { eq } from "drizzle-orm";
-import { tablesTable, CreateTableSchema, TableSchema } from "@repo/db";
 import { z } from "zod";
+import {
+  categoriesTable,
+  CreateCategorySchema,
+  CategorySchema,
+} from "@repo/db";
 
-export async function tablesRoutes(app: FastifyZod) {
+export async function categoriesRoutes(app: FastifyZod) {
   app.get(
-    "/tables",
+    "/categories",
     {
       schema: {
         response: {
-          200: z.array(TableSchema),
+          200: z.array(CategorySchema),
         },
       },
     },
     async (request, reply) => {
-      const tables = await app.db
+      const categories = await app.db
         .select()
-        .from(tablesTable)
-        .orderBy(tablesTable.number);
+        .from(categoriesTable)
+        .orderBy(categoriesTable.name);
 
-      return reply.code(200).send(tables);
+      return reply.code(200).send(categories);
     },
   );
   app.post(
-    "/tables",
+    "/categories",
     {
       schema: {
-        body: CreateTableSchema,
+        body: CreateCategorySchema,
         response: {
-          201: TableSchema,
+          201: CategorySchema,
         },
       },
     },
     async (request, reply) => {
       const data = request.body;
-
-      const [newTable] = await app.db
-        .insert(tablesTable)
+      const [newCategory] = await app.db
+        .insert(categoriesTable)
         .values(data)
         .returning();
 
-      return reply.code(201).send(newTable);
+      return reply.code(201).send(newCategory);
     },
   );
+
   app.delete(
-    "/tables/:id",
+    "/categories/:id",
     {
       schema: {
         params: z.object({ id: z.uuid() }),
@@ -52,19 +56,20 @@ export async function tablesRoutes(app: FastifyZod) {
     },
     async (request, reply) => {
       const { id } = request.params;
-      await app.db.delete(tablesTable).where(eq(tablesTable.id, id));
+      await app.db.delete(categoriesTable).where(eq(categoriesTable.id, id));
 
       return reply.code(204).send();
     },
   );
+
   app.patch(
-    "/tables/:id",
+    "/categories/:id",
     {
       schema: {
         params: z.object({ id: z.uuid() }),
-        body: CreateTableSchema.partial().strict(),
+        body: CreateCategorySchema.partial().strict(),
         response: {
-          201: TableSchema,
+          201: CategorySchema,
           400: ErrorSchema,
           404: ErrorSchema,
         },
@@ -82,20 +87,20 @@ export async function tablesRoutes(app: FastifyZod) {
         });
       }
 
-      const [updatedTable] = await app.db
-        .update(tablesTable)
+      const [updatedCategory] = await app.db
+        .update(categoriesTable)
         .set(data)
-        .where(eq(tablesTable.id, id))
+        .where(eq(categoriesTable.id, id))
         .returning();
 
       // TODO: refactor this check
-      if (!updatedTable) {
+      if (!updatedCategory) {
         return reply
           .code(404)
-          .send({ error: "Not Found", message: "Table not found" });
+          .send({ error: "Not Found", message: "Product not found" });
       }
 
-      return reply.code(201).send(updatedTable);
+      return reply.code(201).send(updatedCategory);
     },
   );
 }
