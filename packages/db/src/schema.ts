@@ -53,7 +53,9 @@ export const categoriesTable = pgTable("categories", {
 
 export const productsTable = pgTable("products", {
   id: uuid("id").defaultRandom().primaryKey(),
-  categoryId: uuid("category_id").references(() => categoriesTable.id),
+  categoryId: uuid("category_id")
+    .references(() => categoriesTable.id)
+    .notNull(),
   name: text("name").notNull(),
   price: integer("price").notNull(),
   description: text("description"),
@@ -89,3 +91,9 @@ export type NewStaff = typeof staffTable.$inferInsert;
 
 export const TableSchema = createSelectSchema(tablesTable);
 export const CreateTableSchema = createInsertSchema(tablesTable);
+
+export const ProductSchema = createSelectSchema(productsTable);
+export const CreateProductSchema = createInsertSchema(productsTable);
+
+export const CategorySchema = createSelectSchema(categoriesTable);
+export const CreateCategorySchema = createInsertSchema(categoriesTable);
