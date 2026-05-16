@@ -16,6 +16,7 @@ import {
   tablesRoutes,
   productsRoutes,
   categoriesRoutes,
+  ordersRoutes,
   posRoutes,
 } from "./routes";
 
@@ -83,6 +84,7 @@ const start = async () => {
       await privateInstance.register(tablesRoutes);
       await privateInstance.register(productsRoutes);
       await privateInstance.register(categoriesRoutes);
+      await privateInstance.register(ordersRoutes);
       await privateInstance.register(posRoutes);
     },
     { prefix: "/api/v1" },
