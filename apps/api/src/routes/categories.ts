@@ -3,8 +3,9 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import {
   categoriesTable,
-  CreateCategorySchema,
-  CategorySchema,
+  InsertCategorySchema,
+  UpdateCategorySchema,
+  SelectCategorySchema,
 } from "@repo/db";
 
 export async function categoriesRoutes(app: FastifyZod) {
@@ -13,7 +14,7 @@ export async function categoriesRoutes(app: FastifyZod) {
     {
       schema: {
         response: {
-          200: z.array(CategorySchema),
+          200: z.array(SelectCategorySchema),
         },
       },
     },
@@ -30,9 +31,9 @@ export async function categoriesRoutes(app: FastifyZod) {
     "/categories",
     {
       schema: {
-        body: CreateCategorySchema,
+        body: InsertCategorySchema,
         response: {
-          201: CategorySchema,
+          201: SelectCategorySchema,
         },
       },
     },
@@ -67,9 +68,9 @@ export async function categoriesRoutes(app: FastifyZod) {
     {
       schema: {
         params: z.object({ id: z.uuid() }),
-        body: CreateCategorySchema.partial().strict(),
+        body: UpdateCategorySchema,
         response: {
-          201: CategorySchema,
+          201: SelectCategorySchema,
           400: ErrorSchema,
           404: ErrorSchema,
         },

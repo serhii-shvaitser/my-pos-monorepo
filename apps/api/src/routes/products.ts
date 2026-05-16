@@ -1,6 +1,11 @@
 import { FastifyZod, ErrorSchema } from "../types";
 import { eq } from "drizzle-orm";
-import { productsTable, CreateProductSchema, ProductSchema } from "@repo/db";
+import {
+  productsTable,
+  InsertProductSchema,
+  UpdateProductSchema,
+  SelectProductSchema,
+} from "@repo/db";
 import { z } from "zod";
 
 export async function productsRoutes(app: FastifyZod) {
@@ -9,7 +14,7 @@ export async function productsRoutes(app: FastifyZod) {
     {
       schema: {
         response: {
-          200: z.array(ProductSchema),
+          200: z.array(SelectProductSchema),
         },
       },
     },
@@ -26,7 +31,7 @@ export async function productsRoutes(app: FastifyZod) {
     "/products",
     {
       schema: {
-        body: CreateProductSchema,
+        body: InsertProductSchema,
       },
     },
     async (request, reply) => {
@@ -59,9 +64,9 @@ export async function productsRoutes(app: FastifyZod) {
     {
       schema: {
         params: z.object({ id: z.uuid() }),
-        body: CreateProductSchema.partial().strict(),
+        body: UpdateProductSchema,
         response: {
-          201: ProductSchema,
+          201: SelectProductSchema,
           400: ErrorSchema,
           404: ErrorSchema,
         },

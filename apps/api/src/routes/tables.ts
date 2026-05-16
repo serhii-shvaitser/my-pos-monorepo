@@ -1,6 +1,11 @@
 import { FastifyZod, ErrorSchema } from "../types";
 import { eq } from "drizzle-orm";
-import { tablesTable, CreateTableSchema, TableSchema } from "@repo/db";
+import {
+  tablesTable,
+  InsertTableSchema,
+  UpdateTableSchema,
+  SelectTableSchema,
+} from "@repo/db";
 import { z } from "zod";
 
 export async function tablesRoutes(app: FastifyZod) {
@@ -9,7 +14,7 @@ export async function tablesRoutes(app: FastifyZod) {
     {
       schema: {
         response: {
-          200: z.array(TableSchema),
+          200: z.array(SelectTableSchema),
         },
       },
     },
@@ -26,9 +31,9 @@ export async function tablesRoutes(app: FastifyZod) {
     "/tables",
     {
       schema: {
-        body: CreateTableSchema,
+        body: InsertTableSchema,
         response: {
-          201: TableSchema,
+          201: SelectTableSchema,
         },
       },
     },
@@ -62,9 +67,9 @@ export async function tablesRoutes(app: FastifyZod) {
     {
       schema: {
         params: z.object({ id: z.uuid() }),
-        body: CreateTableSchema.partial().strict(),
+        body: UpdateTableSchema,
         response: {
-          201: TableSchema,
+          201: SelectTableSchema,
           400: ErrorSchema,
           404: ErrorSchema,
         },
