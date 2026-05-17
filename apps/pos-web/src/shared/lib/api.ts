@@ -3,6 +3,8 @@ import {
   createApiClient,
   createAuthService,
   createTablesService,
+  createOrdersService,
+  createProductsService,
 } from "@repo/api-client";
 
 import { useSessionStore } from "@/entities/session";
@@ -33,3 +35,5 @@ const client = createApiClient({
 
 export const authApi = createAuthService(client);
 export const tablesApi = createTablesService(client);
+export const ordersApi = createOrdersService(client);
+export const productsApi = createProductsService(client);
