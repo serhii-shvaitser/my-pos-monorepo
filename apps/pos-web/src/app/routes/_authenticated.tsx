@@ -20,11 +20,10 @@ export const Route = createFileRoute("/_authenticated")({
         const data = await authApi.refreshToken();
         useSessionStore.getState().setAccessToken(data.accessToken);
       } catch {
-        const redirectPath = `${location.pathname}${location.search}${location.hash}`;
         throw redirect({
           to: "/login",
           search: {
-            redirect: redirectPath,
+            redirect: location.href,
           },
         });
       }
@@ -45,7 +44,7 @@ function RouteComponent() {
               orientation="vertical"
               className="mx-2 data-[orientation=vertical]:h-4"
             />
-            <h1 className="text-base font-medium">Tables</h1>
+            <h1 className="text-base font-medium">Table #7</h1>
             <div className="ml-auto flex items-center gap-2">
               <Button
                 variant="ghost"
