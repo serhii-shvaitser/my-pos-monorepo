@@ -19,4 +19,5 @@ export type FastifyZod = FastifyInstance<
 export const ErrorSchema = z.object({
   error: z.string(),
   message: z.string(),
+  details: z.string().optional(),
 });
