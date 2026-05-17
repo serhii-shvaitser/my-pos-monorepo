@@ -8,6 +8,8 @@ import {
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 
+import { SelectOrderSchema } from "@repo/db";
+
 export type FastifyZod = FastifyInstance<
   RawServerDefault,
   RawRequestDefaultExpression<RawServerDefault>,
@@ -21,3 +23,8 @@ export const ErrorSchema = z.object({
   message: z.string(),
   details: z.string().optional(),
 });
+
+export const GetOrdersQuerySchema = SelectOrderSchema.pick({
+  tableId: true,
+  status: true,
+}).partial();
