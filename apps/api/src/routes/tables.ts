@@ -52,7 +52,7 @@ export async function tablesRoutes(app: FastifyZod) {
     "/tables/:id",
     {
       schema: {
-        params: z.object({ id: z.uuid() }),
+        params: SelectTableSchema.pick({ id: true }),
       },
     },
     async (request, reply) => {
@@ -66,10 +66,10 @@ export async function tablesRoutes(app: FastifyZod) {
     "/tables/:id",
     {
       schema: {
-        params: z.object({ id: z.uuid() }),
+        params: SelectTableSchema.pick({ id: true }),
         body: UpdateTableSchema,
         response: {
-          201: SelectTableSchema,
+          200: SelectTableSchema,
           400: ErrorSchema,
           404: ErrorSchema,
         },
@@ -100,7 +100,7 @@ export async function tablesRoutes(app: FastifyZod) {
           .send({ error: "Not Found", message: "Table not found" });
       }
 
-      return reply.code(201).send(updatedTable);
+      return reply.code(200).send(updatedTable);
     },
   );
 }

@@ -49,7 +49,7 @@ export async function productsRoutes(app: FastifyZod) {
     "/products/:id",
     {
       schema: {
-        params: z.object({ id: z.uuid() }),
+        params: SelectProductSchema.pick({ id: true }),
       },
     },
     async (request, reply) => {
@@ -63,10 +63,10 @@ export async function productsRoutes(app: FastifyZod) {
     "/products/:id",
     {
       schema: {
-        params: z.object({ id: z.uuid() }),
+        params: SelectProductSchema.pick({ id: true }),
         body: UpdateProductSchema,
         response: {
-          201: SelectProductSchema,
+          200: SelectProductSchema,
           400: ErrorSchema,
           404: ErrorSchema,
         },
@@ -97,7 +97,7 @@ export async function productsRoutes(app: FastifyZod) {
           .send({ error: "Not Found", message: "Product not found" });
       }
 
-      return reply.code(201).send(updatedProduct);
+      return reply.code(200).send(updatedProduct);
     },
   );
 }

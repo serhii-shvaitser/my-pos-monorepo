@@ -52,7 +52,7 @@ export async function categoriesRoutes(app: FastifyZod) {
     "/categories/:id",
     {
       schema: {
-        params: z.object({ id: z.uuid() }),
+        params: SelectCategorySchema.pick({ id: true }),
       },
     },
     async (request, reply) => {
@@ -67,10 +67,10 @@ export async function categoriesRoutes(app: FastifyZod) {
     "/categories/:id",
     {
       schema: {
-        params: z.object({ id: z.uuid() }),
+        params: SelectCategorySchema.pick({ id: true }),
         body: UpdateCategorySchema,
         response: {
-          201: SelectCategorySchema,
+          200: SelectCategorySchema,
           400: ErrorSchema,
           404: ErrorSchema,
         },
@@ -101,7 +101,7 @@ export async function categoriesRoutes(app: FastifyZod) {
           .send({ error: "Not Found", message: "Product not found" });
       }
 
-      return reply.code(201).send(updatedCategory);
+      return reply.code(200).send(updatedCategory);
     },
   );
 }

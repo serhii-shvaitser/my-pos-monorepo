@@ -1,5 +1,5 @@
-import { FastifyZod, ErrorSchema } from "../types";
-import { eq } from "drizzle-orm";
+import { FastifyZod, ErrorSchema, GetOrdersQuerySchema } from "../types";
+import { eq, type SQL } from "drizzle-orm";
 import { z } from "zod";
 import {
   ordersTable,
@@ -7,77 +7,9 @@ import {
   UpdateOrderSchema,
   SelectOrderSchema,
 } from "@repo/db";
-
 import { OrderWithItemsSchema } from "@repo/types";
 
 export async function ordersRoutes(app: FastifyZod) {
-  app.get(
-    "/orders",
-    {
-      schema: {
-        response: {
-          200: z.array(SelectOrderSchema),
-        },
-      },
-    },
-    async (request, reply) => {
-      const orders = await app.db.select().from(ordersTable);
-
-      return reply.code(200).send(orders);
-    },
-  );
-  app.get(
-    "/orders/:id",
-    {
-      schema: {
-        params: z.object({ id: z.uuid() }),
-        response: {
-          200: SelectOrderSchema,
-        },
-      },
-    },
-    async (request, reply) => {
-      const { id } = request.params;
-      const [order] = await app.db
-        .select()
-        .from(ordersTable)
-        .where(eq(ordersTable.id, id));
-
-      return reply.code(200).send(order);
-    },
-  );
-  app.get(
-    "/orders/active",
-    {
-      schema: {
-        querystring: z.object({ tableId: z.uuid() }),
-        response: {
-          200: OrderWithItemsSchema.nullable(),
-        },
-      },
-    },
-    async (request, reply) => {
-      const { tableId } = request.query;
-
-      const order = await app.db.query.ordersTable.findFirst({
-        where: (orders, { and, eq }) =>
-          and(eq(orders.tableId, tableId), eq(orders.status, "open")),
-        with: {
-          items: {
-            with: {
-              product: true,
-            },
-          },
-        },
-      });
-
-      if (!order) {
-        return reply.code(200).send(null);
-      }
-
-      return reply.code(200).send(order);
-    },
-  );
   app.post(
     "/orders",
     {
@@ -90,20 +22,91 @@ export async function ordersRoutes(app: FastifyZod) {
     },
     async (request, reply) => {
       const data = request.body;
-      const [newOrder] = await app.db
-        .insert(ordersTable)
-        .values(data)
-        .returning();
+      try {
+        const [newOrder] = await app.db
+          .insert(ordersTable)
+          .values(data)
+          .returning();
 
-      return reply.code(201).send(newOrder);
+        return reply.code(201).send(newOrder);
+      } catch (error) {
+        // TODO: handle Foreign Key Violation (wrong table id)
+        throw error;
+      }
     },
   );
+  app.get(
+    "/orders",
+    {
+      schema: {
+        querystring: GetOrdersQuerySchema,
+        response: {
+          200: z.array(OrderWithItemsSchema),
+        },
+      },
+    },
+    async (request, reply) => {
+      const { tableId, status } = request.query;
+      const conditions: SQL[] = [];
 
+      if (tableId) {
+        conditions.push(eq(ordersTable.tableId, tableId));
+      }
+
+      if (status) {
+        conditions.push(eq(ordersTable.status, status));
+      }
+
+      const orders = await app.db.query.ordersTable.findMany({
+        where: (orders, { and }) =>
+          conditions.length > 0 ? and(...conditions) : undefined,
+        with: {
+          items: {
+            with: { product: true },
+          },
+        },
+      });
+
+      return reply.code(200).send(orders);
+    },
+  );
+  app.get(
+    "/orders/:id",
+    {
+      schema: {
+        params: SelectOrderSchema.pick({ id: true }),
+        response: {
+          200: OrderWithItemsSchema,
+          404: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { id } = request.params;
+
+      const order = await app.db.query.ordersTable.findFirst({
+        where: (orders, { eq }) => eq(orders.id, id),
+        with: {
+          items: {
+            with: { product: true },
+          },
+        },
+      });
+
+      if (!order) {
+        return reply
+          .code(404)
+          .send({ error: "Not Found", message: "Order not found" });
+      }
+
+      return reply.code(200).send(order);
+    },
+  );
   app.delete(
     "/orders/:id",
     {
       schema: {
-        params: z.object({ id: z.uuid() }),
+        params: SelectOrderSchema.pick({ id: true }),
       },
     },
     async (request, reply) => {
@@ -118,10 +121,10 @@ export async function ordersRoutes(app: FastifyZod) {
     "/orders/:id",
     {
       schema: {
-        params: z.object({ id: z.uuid() }),
+        params: SelectOrderSchema.pick({ id: true }),
         body: UpdateOrderSchema,
         response: {
-          201: SelectOrderSchema,
+          200: SelectOrderSchema,
           400: ErrorSchema,
           404: ErrorSchema,
         },
@@ -152,7 +155,7 @@ export async function ordersRoutes(app: FastifyZod) {
           .send({ error: "Not Found", message: "Order not found" });
       }
 
-      return reply.code(201).send(updatedOrder);
+      return reply.code(200).send(updatedOrder);
     },
   );
 }
