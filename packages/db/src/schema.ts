@@ -1,4 +1,10 @@
-import { createSelectSchema, createInsertSchema } from "drizzle-zod";
+import {
+  createSelectSchema,
+  createInsertSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
+
+import { relations } from "drizzle-orm";
 
 import {
   pgTable,
@@ -86,14 +92,39 @@ export const orderItemsTable = pgTable("order_items", {
   unitPrice: integer("unit_price").notNull(),
 });
 
-export type Staff = typeof staffTable.$inferSelect;
-export type NewStaff = typeof staffTable.$inferInsert;
+export const ordersRelations = relations(ordersTable, ({ many }) => ({
+  items: many(orderItemsTable),
+}));
 
-export const TableSchema = createSelectSchema(tablesTable);
-export const CreateTableSchema = createInsertSchema(tablesTable);
+export const orderItemsRelations = relations(orderItemsTable, ({ one }) => ({
+  order: one(ordersTable, {
+    fields: [orderItemsTable.orderId],
+    references: [ordersTable.id],
+  }),
+  product: one(productsTable, {
+    fields: [orderItemsTable.productId],
+    references: [productsTable.id],
+  }),
+}));
 
-export const ProductSchema = createSelectSchema(productsTable);
-export const CreateProductSchema = createInsertSchema(productsTable);
+// export const InsertStaffSchema = createInsertSchema(staffTable);
 
-export const CategorySchema = createSelectSchema(categoriesTable);
-export const CreateCategorySchema = createInsertSchema(categoriesTable);
+export const SelectTableSchema = createSelectSchema(tablesTable);
+export const InsertTableSchema = createInsertSchema(tablesTable);
+export const UpdateTableSchema = createUpdateSchema(tablesTable);
+
+export const SelectProductSchema = createSelectSchema(productsTable);
+export const InsertProductSchema = createInsertSchema(productsTable);
+export const UpdateProductSchema = createUpdateSchema(productsTable);
+
+export const SelectCategorySchema = createSelectSchema(categoriesTable);
+export const InsertCategorySchema = createInsertSchema(categoriesTable);
+export const UpdateCategorySchema = createUpdateSchema(categoriesTable);
+
+export const SelectOrderSchema = createSelectSchema(ordersTable);
+export const InsertOrderSchema = createInsertSchema(ordersTable);
+export const UpdateOrderSchema = createUpdateSchema(ordersTable);
+
+export const SelectOrderItemSchema = createSelectSchema(orderItemsTable);
+export const InsertOrderItemSchema = createInsertSchema(orderItemsTable);
+export const UpdateOrderItemSchema = createUpdateSchema(orderItemsTable);
