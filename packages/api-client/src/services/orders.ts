@@ -6,14 +6,4 @@ export const createOrdersService = (client: AxiosInstance) => ({
     const { data } = await client.get<OrderResponse[]>(`/orders`);
     return data;
   },
-  getActiveOrder: async (tableId: string): Promise<OrderResponse | null> => {
-    const { data } = await client.get<OrderResponse[]>(
-      `/orders?status=open&tableId=${tableId}`,
-    );
-    if (!data || data.length === 0) {
-      return null;
-    }
-
-    return data[0];
-  },
 });
