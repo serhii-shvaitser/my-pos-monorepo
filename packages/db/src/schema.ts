@@ -4,7 +4,7 @@ import {
   createUpdateSchema,
 } from "drizzle-zod";
 
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 import {
   pgTable,
@@ -14,6 +14,8 @@ import {
   timestamp,
   integer,
   pgEnum,
+  unique,
+  check,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("user_role", [
@@ -32,6 +34,14 @@ export const tableStatusEnum = pgEnum("table_status", [
 export const orderStatusEnum = pgEnum("order_status", [
   "open",
   "paid",
+  "cancelled",
+]);
+
+export const orderItemStatusEnum = pgEnum("order_item_status", [
+  "ordered",
+  "cooking",
+  "ready",
+  "served",
   "cancelled",
 ]);
 
@@ -76,21 +86,54 @@ export const ordersTable = pgTable("orders", {
   waiterId: uuid("waiter_id").references(() => staffTable.id),
   status: orderStatusEnum("status").notNull().default("open"),
   totalAmount: integer("total_amount").notNull().default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  closedAt: timestamp("closed_at"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  closedAt: timestamp("closed_at", { withTimezone: true }),
 });
 
-export const orderItemsTable = pgTable("order_items", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  orderId: uuid("order_id")
-    .references(() => ordersTable.id)
-    .notNull(),
-  productId: uuid("product_id")
-    .references(() => productsTable.id)
-    .notNull(),
-  quantity: integer("quantity").notNull().default(1),
-  unitPrice: integer("unit_price").notNull(),
-});
+export const orderItemsTable = pgTable(
+  "order_items",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    orderId: uuid("order_id")
+      .references(() => ordersTable.id, { onDelete: "cascade" })
+      .notNull(),
+    productId: uuid("product_id")
+      .references(() => productsTable.id)
+      .notNull(),
+    quantity: integer("quantity").notNull().default(1),
+    unitPrice: integer("unit_price").notNull(),
+    status: orderItemStatusEnum("status").notNull().default("ordered"),
+  },
+  (table) => [
+    unique("order_product_unique").on(table.orderId, table.productId),
+    check("order_item_quantity_check", sql`${table.quantity} > 0`),
+  ],
+);
+
+export const categoriesRelations = relations(categoriesTable, ({ many }) => ({
+  products: many(productsTable),
+}));
+
+export const productsRelations = relations(productsTable, ({ one }) => ({
+  category: one(categoriesTable, {
+    fields: [productsTable.categoryId],
+    references: [categoriesTable.id],
+  }),
+}));
+
+// export const ordersRelations = relations(ordersTable, ({ many, one }) => ({
+//   items: many(orderItemsTable),
+//   table: one(tablesTable, {
+//     fields: [ordersTable.tableId],
+//     references: [tablesTable.id],
+//   }),
+//   waiter: one(staffTable, {
+//     fields: [ordersTable.waiterId],
+//     references: [staffTable.id],
+//   }),
+// }));
 
 export const ordersRelations = relations(ordersTable, ({ many }) => ({
   items: many(orderItemsTable),
