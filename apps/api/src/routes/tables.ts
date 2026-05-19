@@ -2,10 +2,12 @@ import { FastifyZod, ErrorSchema } from "../types";
 import { eq } from "drizzle-orm";
 import {
   tablesTable,
+  ordersTable,
   InsertTableSchema,
   UpdateTableSchema,
   SelectTableSchema,
 } from "@repo/db";
+import { OrderWithItemsSchema } from "@repo/types";
 import { z } from "zod";
 
 export async function tablesRoutes(app: FastifyZod) {
@@ -101,6 +103,52 @@ export async function tablesRoutes(app: FastifyZod) {
       }
 
       return reply.code(200).send(updatedTable);
+    },
+  );
+
+  // With orders
+
+  app.post(
+    "/tables/:id/active-order",
+    {
+      schema: {
+        params: SelectTableSchema.pick({ id: true }),
+        response: {
+          200: OrderWithItemsSchema,
+          201: OrderWithItemsSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { id: tableId } = request.params;
+
+      const existingOrder = await app.db.query.ordersTable.findFirst({
+        where: (orders, { and, eq }) =>
+          and(eq(orders.tableId, tableId), eq(orders.status, "open")),
+        with: {
+          items: {
+            with: { product: true },
+          },
+        },
+      });
+
+      if (existingOrder) {
+        return reply.code(200).send(existingOrder);
+      }
+
+      const [newOrder] = await app.db
+        .insert(ordersTable)
+        .values({
+          tableId,
+        })
+        .returning();
+
+      const newOrderWithItems = {
+        ...newOrder,
+        items: [],
+      };
+
+      return reply.code(201).send(newOrderWithItems);
     },
   );
 }
