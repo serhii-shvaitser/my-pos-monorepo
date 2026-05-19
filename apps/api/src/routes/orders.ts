@@ -1,13 +1,18 @@
 import { FastifyZod, ErrorSchema, GetOrdersQuerySchema } from "../types";
-import { eq, type SQL } from "drizzle-orm";
+import { eq, type SQL, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
   ordersTable,
+  orderItemsTable,
+  productsTable,
   InsertOrderSchema,
   UpdateOrderSchema,
   SelectOrderSchema,
+  InsertOrderItemSchema,
+  SelectOrderItemSchema,
 } from "@repo/db";
 import { OrderWithItemsSchema } from "@repo/types";
+import id from "zod/v4/locales/id.cjs";
 
 export async function ordersRoutes(app: FastifyZod) {
   app.post(
@@ -156,6 +161,105 @@ export async function ordersRoutes(app: FastifyZod) {
       }
 
       return reply.code(200).send(updatedOrder);
+    },
+  );
+
+  // Order Items
+
+  app.post(
+    "/orders/:orderId/items",
+    {
+      schema: {
+        params: SelectOrderItemSchema.pick({ orderId: true }),
+        body: z.array(
+          InsertOrderItemSchema.pick({
+            productId: true,
+            quantity: true,
+          }),
+        ),
+        response: {
+          201: z.array(SelectOrderItemSchema),
+          400: ErrorSchema,
+          404: ErrorSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { orderId } = request.params;
+      const orderItems = request.body;
+
+      if (orderItems.length === 0) {
+        return reply
+          .code(400)
+          .send({ error: "Bad request", message: "Order is empty" });
+      }
+
+      const productIds = orderItems.map((orderItem) => orderItem.productId);
+
+      const dbProducts = await app.db
+        .select({
+          id: productsTable.id,
+          price: productsTable.price,
+          isAvailable: productsTable.isAvailable,
+        })
+        .from(productsTable)
+        .where(inArray(productsTable.id, productIds));
+
+      let itemsToInsert: z.infer<typeof InsertOrderItemSchema>[] = [];
+
+      for (const orderItem of orderItems) {
+        const product = dbProducts.find(
+          (dbProduct) => dbProduct.id === orderItem.productId,
+        );
+
+        if (!product) {
+          return reply.code(404).send({
+            message: "Not Found",
+            error: "Product not found",
+          });
+        }
+
+        if (!product.isAvailable) {
+          return reply.code(400).send({
+            message: "Bad Request",
+            error: "Product is out of stock",
+          });
+        }
+
+        itemsToInsert.push({
+          orderId,
+          productId: orderItem.productId,
+          quantity: orderItem.quantity,
+          unitPrice: product.price,
+        });
+      }
+
+      const createdItems = await app.db
+        .insert(orderItemsTable)
+        .values(itemsToInsert)
+        .onConflictDoUpdate({
+          set: {
+            quantity: sql`${orderItemsTable.quantity} + EXCLUDED.quantity`,
+          },
+          target: [orderItemsTable.orderId, orderItemsTable.productId],
+        })
+        .returning();
+
+      const allOrderItems = await app.db
+        .select()
+        .from(orderItemsTable)
+        .where(eq(orderItemsTable.orderId, orderId));
+
+      const finalTotalAmount = allOrderItems.reduce((sum, item) => {
+        return sum + item.unitPrice * item.quantity;
+      }, 0);
+
+      await app.db
+        .update(ordersTable)
+        .set({ totalAmount: finalTotalAmount })
+        .where(eq(ordersTable.id, orderId));
+
+      return reply.code(201).send(createdItems);
     },
   );
 }
