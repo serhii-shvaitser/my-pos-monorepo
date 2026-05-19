@@ -13,10 +13,11 @@ export type Table = z.infer<typeof SelectTableSchema>;
 
 // POS system
 
-export const PosMenuSchema = z.object({
-  categories: z.array(SelectCategorySchema),
+export const CategoryWithProductsSchema = SelectCategorySchema.extend({
   products: z.array(SelectProductSchema),
 });
+
+export const PosMenuSchema = z.array(CategoryWithProductsSchema);
 
 export type PosMenuResponse = z.infer<typeof PosMenuSchema>;
 
