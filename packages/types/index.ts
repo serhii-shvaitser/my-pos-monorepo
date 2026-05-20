@@ -9,6 +9,7 @@ import {
 
 export type Product = z.infer<typeof SelectProductSchema>;
 export type Order = z.infer<typeof SelectOrderSchema>;
+export type OrderItem = z.infer<typeof SelectOrderItemSchema>;
 export type Table = z.infer<typeof SelectTableSchema>;
 
 // POS system
