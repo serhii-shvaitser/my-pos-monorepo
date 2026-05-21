@@ -1,3 +1,5 @@
+import { cn, formatPrice } from "@/shared/lib/utils";
+
 import {
   Card,
   CardHeader,
@@ -7,30 +9,37 @@ import {
 } from "@/shared/ui/card";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 
-import { useActiveOrder, OrderItem } from "@/entities/order";
+import { OrderItem } from "@/entities/order";
 import { EmptyState } from "./EmptyState";
 
-export function ActiveOrder({ tableId }: { tableId: string }) {
-  const { data: order } = useActiveOrder(tableId);
+import { useOrderStore } from "@/features/manage-order";
+
+export function ActiveOrder() {
+  const orderItems = useOrderStore((store) => store.orderItems);
+  const totalAmount = useOrderStore((store) => store.totalAmount);
 
   return (
     <Card className="flex-1 p-0 overflow-hidden">
-      <CardHeader className="p-6 bg-gray-50 border-b">
+      <CardHeader className="p-2 gap-0 bg-gray-50 border-b">
         <CardTitle>Current Order</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1">
-        {!order ? (
+      <CardContent className="flex-1 tex-sm px-4">
+        {!orderItems?.length ? (
           <EmptyState />
         ) : (
-          <ScrollArea>
-            {order.items.map((oderItem) => (
-              <OrderItem orderItemData={oderItem.product} />
+          <ScrollArea className="flex-1 h-full w-full">
+            {orderItems.map((oderItem) => (
+              <OrderItem
+                key={oderItem.productId}
+                orderItemData={oderItem.product}
+                quantity={oderItem.quantity}
+              />
             ))}
           </ScrollArea>
         )}
       </CardContent>
-      <CardFooter className="p-6 bg-gray-50 border-t">
-        <p>Order Footer</p>
+      <CardFooter className="p-2 bg-gray-50 border-t">
+        <p>Total: {formatPrice(totalAmount)}</p>
       </CardFooter>
     </Card>
   );
