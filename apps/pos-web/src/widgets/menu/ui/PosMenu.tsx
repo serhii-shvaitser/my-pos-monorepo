@@ -17,7 +17,7 @@ export function PosMenu() {
 
   return (
     <Card className="flex-3 p-0 overflow-hidden">
-      <CardHeader className="p-6 bg-gray-50 border-b">
+      <CardHeader className="p-2 gap-0 bg-gray-50 border-b">
         <CardTitle>Menu</CardTitle>
       </CardHeader>
       <CardContent className="flex-1">
@@ -54,9 +54,7 @@ export function PosMenu() {
           ))}
         </Tabs>
       </CardContent>
-      <CardFooter className="p-6 bg-gray-50 border-t">
-        <p>Menu Footer</p>
-      </CardFooter>
+      <CardFooter className="p-2 bg-gray-50 border-t">Menu Footer</CardFooter>
     </Card>
   );
 }
