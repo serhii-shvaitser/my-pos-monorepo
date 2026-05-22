@@ -8,6 +8,13 @@
       "when": 1777804250474,
       "tag": "0000_exotic_calypso",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779125608087,
+      "tag": "0001_silky_maestro",
+      "breakpoints": true
     }
   ]
 }

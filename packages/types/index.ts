@@ -1,25 +1,34 @@
 import { z } from "zod";
-import { TableSchema } from "@repo/db";
+import {
+  SelectTableSchema,
+  SelectProductSchema,
+  SelectCategorySchema,
+  SelectOrderSchema,
+  SelectOrderItemSchema,
+} from "@repo/db";
 
-export type Table = z.infer<typeof TableSchema>;
+export type Product = z.infer<typeof SelectProductSchema>;
+export type Order = z.infer<typeof SelectOrderSchema>;
+export type OrderItem = z.infer<typeof SelectOrderItemSchema>;
+export type Table = z.infer<typeof SelectTableSchema>;
 
-// User
+// POS system
+
+export const CategoryWithProductsSchema = SelectCategorySchema.extend({
+  products: z.array(SelectProductSchema),
+});
+
+export const PosMenuSchema = z.array(CategoryWithProductsSchema);
+
+export type PosMenuResponse = z.infer<typeof PosMenuSchema>;
+
+// Login
 
 export type UserRole = "admin" | "waiter" | "manager" | "cook";
 
 export interface User {
   name: string;
   role: UserRole;
-}
-
-// API
-
-export interface ApiConfig {
-  baseURL: string;
-  getAccessToken: () => string | null;
-  refreshToken: () => Promise<string>;
-  onUnauthorized: () => void;
-  onTokenRefreshed: (newToken: string) => void;
 }
 
 export const LoginCredentialsSchema = z.object({
@@ -34,9 +43,34 @@ export interface SessionData {
   accessToken: string;
 }
 
-export const TablesResponseSchema = z.array(TableSchema);
+// Orders
 
+export const OrderWithItemsSchema = SelectOrderSchema.extend({
+  items: z.array(
+    SelectOrderItemSchema.extend({
+      product: SelectProductSchema,
+    }),
+  ),
+});
+
+export const OrdersResponseSchema = z.array(OrderWithItemsSchema);
+export type OrdersResponse = z.infer<typeof OrdersResponseSchema>;
+export type OrderResponse = OrdersResponse[0];
+
+// Tables
+
+export const TablesResponseSchema = z.array(SelectTableSchema);
 export type TablesResponse = z.infer<typeof TablesResponseSchema>;
+
+// API
+
+export interface ApiConfig {
+  baseURL: string;
+  getAccessToken: () => string | null;
+  refreshToken: () => Promise<string>;
+  onUnauthorized: () => void;
+  onTokenRefreshed: (newToken: string) => void;
+}
 
 export interface FailedRequest {
   onSuccess: (newAccessToken: string) => void;

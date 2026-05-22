@@ -1,6 +1,13 @@
-import { FastifyZod } from "../types";
+import { FastifyZod, ErrorSchema } from "../types";
 import { eq } from "drizzle-orm";
-import { tablesTable, CreateTableSchema, TableSchema } from "@repo/db";
+import {
+  tablesTable,
+  ordersTable,
+  InsertTableSchema,
+  UpdateTableSchema,
+  SelectTableSchema,
+} from "@repo/db";
+import { OrderWithItemsSchema } from "@repo/types";
 import { z } from "zod";
 
 export async function tablesRoutes(app: FastifyZod) {
@@ -9,11 +16,7 @@ export async function tablesRoutes(app: FastifyZod) {
     {
       schema: {
         response: {
-          200: z.array(TableSchema),
-          500: z.object({
-            error: z.string(),
-            message: z.string(),
-          }),
+          200: z.array(SelectTableSchema),
         },
       },
     },
@@ -22,6 +25,7 @@ export async function tablesRoutes(app: FastifyZod) {
         .select()
         .from(tablesTable)
         .orderBy(tablesTable.number);
+
       return reply.code(200).send(tables);
     },
   );
@@ -29,7 +33,10 @@ export async function tablesRoutes(app: FastifyZod) {
     "/tables",
     {
       schema: {
-        body: CreateTableSchema,
+        body: InsertTableSchema,
+        response: {
+          201: SelectTableSchema,
+        },
       },
     },
     async (request, reply) => {
@@ -47,16 +54,12 @@ export async function tablesRoutes(app: FastifyZod) {
     "/tables/:id",
     {
       schema: {
-        params: z.object({ id: z.uuid() }),
+        params: SelectTableSchema.pick({ id: true }),
       },
     },
     async (request, reply) => {
       const { id } = request.params;
-
-      await app.db
-        .delete(tablesTable)
-        .where(eq(tablesTable.id, id))
-        .returning();
+      await app.db.delete(tablesTable).where(eq(tablesTable.id, id));
 
       return reply.code(204).send();
     },
@@ -65,14 +68,20 @@ export async function tablesRoutes(app: FastifyZod) {
     "/tables/:id",
     {
       schema: {
-        params: z.object({ id: z.uuid() }),
-        body: CreateTableSchema.partial().strict(),
+        params: SelectTableSchema.pick({ id: true }),
+        body: UpdateTableSchema,
+        response: {
+          200: SelectTableSchema,
+          400: ErrorSchema,
+          404: ErrorSchema,
+        },
       },
     },
     async (request, reply) => {
       const { id } = request.params;
       const data = request.body;
 
+      // TODO: refactor this check
       if (!data || Object.keys(data).length === 0) {
         return reply.code(400).send({
           error: "Bad Request",
@@ -86,6 +95,7 @@ export async function tablesRoutes(app: FastifyZod) {
         .where(eq(tablesTable.id, id))
         .returning();
 
+      // TODO: refactor this check
       if (!updatedTable) {
         return reply
           .code(404)
@@ -93,6 +103,52 @@ export async function tablesRoutes(app: FastifyZod) {
       }
 
       return reply.code(200).send(updatedTable);
+    },
+  );
+
+  // With orders
+
+  app.post(
+    "/tables/:id/active-order",
+    {
+      schema: {
+        params: SelectTableSchema.pick({ id: true }),
+        response: {
+          200: OrderWithItemsSchema,
+          201: OrderWithItemsSchema,
+        },
+      },
+    },
+    async (request, reply) => {
+      const { id: tableId } = request.params;
+
+      const existingOrder = await app.db.query.ordersTable.findFirst({
+        where: (orders, { and, eq }) =>
+          and(eq(orders.tableId, tableId), eq(orders.status, "open")),
+        with: {
+          items: {
+            with: { product: true },
+          },
+        },
+      });
+
+      if (existingOrder) {
+        return reply.code(200).send(existingOrder);
+      }
+
+      const [newOrder] = await app.db
+        .insert(ordersTable)
+        .values({
+          tableId,
+        })
+        .returning();
+
+      const newOrderWithItems = {
+        ...newOrder,
+        items: [],
+      };
+
+      return reply.code(201).send(newOrderWithItems);
     },
   );
 }

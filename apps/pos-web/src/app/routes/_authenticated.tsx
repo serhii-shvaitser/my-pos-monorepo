@@ -20,11 +20,10 @@ export const Route = createFileRoute("/_authenticated")({
         const data = await authApi.refreshToken();
         useSessionStore.getState().setAccessToken(data.accessToken);
       } catch {
-        const redirectPath = `${location.pathname}${location.search}${location.hash}`;
         throw redirect({
           to: "/login",
           search: {
-            redirect: redirectPath,
+            redirect: location.href,
           },
         });
       }
@@ -35,7 +34,7 @@ export const Route = createFileRoute("/_authenticated")({
 
 function RouteComponent() {
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <AppSidebar variant="inset" />
       <SidebarInset>
         <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -45,7 +44,7 @@ function RouteComponent() {
               orientation="vertical"
               className="mx-2 data-[orientation=vertical]:h-4"
             />
-            <h1 className="text-base font-medium">Tables</h1>
+            <h1 className="text-base font-medium">Table #7</h1>
             <div className="ml-auto flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -67,7 +66,7 @@ function RouteComponent() {
         </header>
         <main className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 px-4 md:gap-6 md:py-6">
+            <div className="flex flex-col gap-4 py-4 px-4 md:gap-6 flex-1">
               <Outlet />
             </div>
           </div>

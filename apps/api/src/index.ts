@@ -11,7 +11,14 @@ import {
 } from "fastify-type-provider-zod";
 
 import { createDb } from "@repo/db";
-import { authRoutes, tablesRoutes } from "./routes";
+import {
+  authRoutes,
+  tablesRoutes,
+  productsRoutes,
+  categoriesRoutes,
+  ordersRoutes,
+  posRoutes,
+} from "./routes";
 
 const start = async () => {
   const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
@@ -75,6 +82,10 @@ const start = async () => {
       });
 
       await privateInstance.register(tablesRoutes);
+      await privateInstance.register(productsRoutes);
+      await privateInstance.register(categoriesRoutes);
+      await privateInstance.register(ordersRoutes);
+      await privateInstance.register(posRoutes);
     },
     { prefix: "/api/v1" },
   );
