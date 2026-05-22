@@ -15,8 +15,8 @@ import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 
 export function LoginForm() {
-  const [code, setCode] = useState("");
-  const [pin, setPin] = useState("");
+  const [code, setCode] = useState("W01");
+  const [pin, setPin] = useState("1234");
   const { login, isPending } = useLoginByPin({
     onLoginError: () => {
       setCode("");
@@ -57,7 +57,7 @@ export function LoginForm() {
             </Label>
             <Input
               id="pin"
-              type="password"
+              // type="password"
               placeholder="****"
               className="text-center text-2xl tracking-[1em]"
               value={pin}
