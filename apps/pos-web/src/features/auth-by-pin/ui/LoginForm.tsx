@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLoginByPin } from "@/features/auth-by-pin";
+import { useLoginByPin } from "../model/useLoginByPin";
 
 import { Button } from "@/shared/ui/button";
 import { Spinner } from "@/shared/ui/spinner";
