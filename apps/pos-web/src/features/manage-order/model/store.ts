@@ -2,13 +2,13 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import type { OrderResponse, Product } from "@repo/types";
 
-export type OrderItem = Omit<
+export type DraftOderItem = Omit<
   NonNullable<OrderResponse>["items"][number],
   "id" | "orderId" | "unitPrice" | "status"
 >;
 
 type OrderState = {
-  orderItems: OrderItem[];
+  orderItems: DraftOderItem[];
   totalAmount: number;
 };
 
@@ -17,7 +17,7 @@ type OrderAction = {
   addOrderItem: (product: Product) => void;
 };
 
-const calculateTotal = (items: OrderItem[]): number => {
+const calculateTotal = (items: DraftOderItem[]): number => {
   return items.reduce(
     (total, item) => total + item.product.price * item.quantity,
     0,
@@ -47,7 +47,7 @@ export const useOrderStore = create<OrderState & OrderAction>()(
             (item) => item.productId === product.id,
           );
 
-          let updatedItems: OrderItem[];
+          let updatedItems: DraftOderItem[];
 
           if (existingItemIndex !== -1) {
             // Якщо товар вже є в кошику — збільшуємо його кількість на +1
@@ -57,7 +57,7 @@ export const useOrderStore = create<OrderState & OrderAction>()(
               quantity: updatedItems[existingItemIndex].quantity + 1,
             };
           } else {
-            const newItem: OrderItem = {
+            const newItem: DraftOderItem = {
               productId: product.id,
               quantity: 1,
               product: product,
