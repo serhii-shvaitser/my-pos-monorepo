@@ -1,6 +1,6 @@
 import { LoginForm } from "@/features/auth-by-pin";
 
-export default function LoginPage() {
+export function LoginPage() {
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 gap-8">
       <div className="flex items-center gap-2">
