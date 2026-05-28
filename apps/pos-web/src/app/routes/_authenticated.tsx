@@ -1,5 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useSessionStore } from "@/entities/session";
+import { authApi } from "@/entities/session";
+
 import {
   SidebarProvider,
   SidebarTrigger,
@@ -10,12 +12,9 @@ import { Separator } from "@/shared/ui/separator";
 
 import { AppSidebar } from "@/widgets/sidebar";
 
-import { authApi } from "@/shared/lib/api";
-
 export const Route = createFileRoute("/_authenticated")({
-  beforeLoad: async ({ location }) => {
-    const { accessToken } = useSessionStore.getState();
-    if (!accessToken) {
+  beforeLoad: async ({ context, location }) => {
+    if (!context.auth.isAuthenticated) {
       try {
         const data = await authApi.refreshToken();
         useSessionStore.getState().setAccessToken(data.accessToken);

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { productsApi } from "@/shared/lib/api";
+import { productsApi } from "@/entities/product";
 import { type PosMenuResponse } from "@repo/types";
 
 export function usePosMenu() {

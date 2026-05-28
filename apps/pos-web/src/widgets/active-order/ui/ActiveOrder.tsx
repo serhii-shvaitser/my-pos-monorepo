@@ -9,7 +9,7 @@ import {
 } from "@/shared/ui/card";
 import { ScrollArea } from "@/shared/ui/scroll-area";
 
-import { OrderItem } from "@/entities/order";
+import { OrderListItem } from "@/entities/order";
 import { EmptyState } from "./EmptyState";
 
 import { useOrderStore } from "@/features/manage-order";
@@ -29,7 +29,7 @@ export function ActiveOrder() {
         ) : (
           <ScrollArea className="flex-1 h-full w-full">
             {orderItems.map((oderItem) => (
-              <OrderItem
+              <OrderListItem
                 key={oderItem.productId}
                 orderItemData={oderItem.product}
                 quantity={oderItem.quantity}

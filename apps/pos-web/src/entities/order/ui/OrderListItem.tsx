@@ -1,9 +1,9 @@
 import { formatPrice } from "@/shared/lib/utils";
 
-import { type OrderItemProps } from "@/entities/order/model/types";
+import { type OrderItemProps } from "../model/types";
 import { Separator } from "@/shared/ui/separator";
 
-export function OrderItem({ orderItemData, quantity }: OrderItemProps) {
+export function OrderListItem({ orderItemData, quantity }: OrderItemProps) {
   const { name, price } = orderItemData;
   return (
     <>

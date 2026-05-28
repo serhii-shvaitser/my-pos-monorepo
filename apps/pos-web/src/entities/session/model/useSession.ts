@@ -1,7 +1,7 @@
 import { useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { clearSession } from "../lib";
-import { authApi } from "@/shared/lib/api";
+import { authApi } from "../api";
 
 export function useSession() {
   const router = useRouter();

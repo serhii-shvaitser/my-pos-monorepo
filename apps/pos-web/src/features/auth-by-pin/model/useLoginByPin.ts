@@ -2,7 +2,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { authApi } from "@/shared/lib/api";
+import { authApi } from "@/entities/session";
 import { saveSession } from "@/entities/session";
 import { type LoginCredentials, type SessionData } from "@repo/types";
 import { type LoginOptions } from "./types";

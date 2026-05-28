@@ -8,13 +8,13 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './app/routes/__root'
-import { Route as LoginRouteImport } from './app/routes/login'
-import { Route as AuthenticatedRouteImport } from './app/routes/_authenticated'
-import { Route as AuthenticatedIndexRouteImport } from './app/routes/_authenticated/index'
-import { Route as AuthenticatedOrdersRouteImport } from './app/routes/_authenticated/orders'
-import { Route as AuthenticatedTablesIndexRouteImport } from './app/routes/_authenticated/tables/index'
-import { Route as AuthenticatedTablesTableIdRouteImport } from './app/routes/_authenticated/tables/$tableId'
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
+import { Route as AuthenticatedTablesIndexRouteImport } from './routes/_authenticated/tables/index'
+import { Route as AuthenticatedTablesTableIdRouteImport } from './routes/_authenticated/tables/$tableId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',

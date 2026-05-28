@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { TableCard } from "@/entities/table";
-import { useTables } from "@/entities/table/api";
+import { TableCard, useTables } from "@/entities/table";
 
 export function TablesGrid() {
   const { isPending, isError, error, data } = useTables();

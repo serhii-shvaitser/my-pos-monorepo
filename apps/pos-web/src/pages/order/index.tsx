@@ -4,7 +4,7 @@ import { useParams } from "@tanstack/react-router";
 import { ActiveOrder } from "@/widgets/active-order";
 import { PosMenu } from "@/widgets/menu";
 
-import { useTableOrder } from "@/entities/order/api";
+import { useTableOrder } from "@/entities/order";
 import { useOrderStore } from "@/features/manage-order";
 
 export function OrderPage() {

@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { ordersApi, tablesApi } from "@/shared/lib/api";
+import { createOrdersService } from "@repo/api-client";
+import { client } from "@/entities/session";
+import { tablesApi } from "@/entities/table";
 import { type OrderResponse, type OrdersResponse } from "@repo/types";
+
+export const ordersApi = createOrdersService(client);
 
 export function useOrders() {
   const { isPending, isError, error, data } = useQuery<OrdersResponse>({
