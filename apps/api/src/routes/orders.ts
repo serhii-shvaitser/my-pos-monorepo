@@ -1,9 +1,10 @@
 import { FastifyZod, ErrorSchema, GetOrdersQuerySchema } from "../types";
-import { eq, type SQL, inArray, sql } from "drizzle-orm";
+import { eq, type SQL, inArray, sql, and, notInArray, ne } from "drizzle-orm";
 import { z } from "zod";
 import {
   ordersTable,
   orderItemsTable,
+  tablesTable,
   productsTable,
   InsertOrderSchema,
   UpdateOrderSchema,
@@ -205,6 +206,17 @@ export async function ordersRoutes(app: FastifyZod) {
         .from(productsTable)
         .where(inArray(productsTable.id, productIds));
 
+      await app.db
+        .update(orderItemsTable)
+        .set({ status: "cancelled" })
+        .where(
+          and(
+            eq(orderItemsTable.orderId, orderId),
+            notInArray(orderItemsTable.productId, productIds),
+            eq(orderItemsTable.status, "ordered"),
+          ),
+        );
+
       let itemsToInsert: z.infer<typeof InsertOrderItemSchema>[] = [];
 
       for (const orderItem of orderItems) {
@@ -239,7 +251,7 @@ export async function ordersRoutes(app: FastifyZod) {
         .values(itemsToInsert)
         .onConflictDoUpdate({
           set: {
-            quantity: sql`${orderItemsTable.quantity} + EXCLUDED.quantity`,
+            quantity: sql`EXCLUDED.quantity`,
           },
           target: [orderItemsTable.orderId, orderItemsTable.productId],
         })
@@ -248,7 +260,12 @@ export async function ordersRoutes(app: FastifyZod) {
       const allOrderItems = await app.db
         .select()
         .from(orderItemsTable)
-        .where(eq(orderItemsTable.orderId, orderId));
+        .where(
+          and(
+            eq(orderItemsTable.orderId, orderId),
+            ne(orderItemsTable.status, "cancelled"),
+          ),
+        );
 
       const finalTotalAmount = allOrderItems.reduce((sum, item) => {
         return sum + item.unitPrice * item.quantity;
@@ -258,6 +275,18 @@ export async function ordersRoutes(app: FastifyZod) {
         .update(ordersTable)
         .set({ totalAmount: finalTotalAmount })
         .where(eq(ordersTable.id, orderId));
+
+      const [order] = await app.db
+        .select({ tableId: ordersTable.tableId })
+        .from(ordersTable)
+        .where(eq(ordersTable.id, orderId));
+
+      if (order) {
+        await app.db
+          .update(tablesTable)
+          .set({ status: "occupied" })
+          .where(eq(tablesTable.id, order.tableId));
+      }
 
       return reply.code(201).send(createdItems);
     },
