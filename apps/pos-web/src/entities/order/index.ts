@@ -1,2 +1,3 @@
 export { OrderListItem } from "./ui/OrderListItem";
-export { useTableOrder } from "./api";
+export * from "./api";
+export { useOrderStore } from "./model/store";
