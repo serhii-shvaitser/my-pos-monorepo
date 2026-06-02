@@ -99,3 +99,19 @@ export const createApiClient = ({
 
   return instance;
 };
+
+export const refreshToken = async () => {
+  // TODO: update hardcoded url with dynamic param value
+
+  const response = await axios.get(
+    "http://localhost:3001/api/v1/auth/refresh",
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    },
+  );
+
+  return response.data.accessToken;
+};
