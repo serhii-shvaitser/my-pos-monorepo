@@ -1,6 +1,9 @@
-import { FastifyZod, ErrorSchema, GetOrdersQuerySchema } from "../types";
 import { eq, type SQL, inArray, sql, and, notInArray, ne } from "drizzle-orm";
 import { z } from "zod";
+
+import { FastifyZod, GetOrdersQuerySchema } from "../types";
+import { ErrorSchema } from "@repo/types";
+
 import {
   ordersTable,
   orderItemsTable,
@@ -206,6 +209,7 @@ export async function ordersRoutes(app: FastifyZod) {
         .from(productsTable)
         .where(inArray(productsTable.id, productIds));
 
+      // TODO: extend logic with another order statuses in future (e.g cooking)
       await app.db
         .update(orderItemsTable)
         .set({ status: "cancelled" })
@@ -252,6 +256,7 @@ export async function ordersRoutes(app: FastifyZod) {
         .onConflictDoUpdate({
           set: {
             quantity: sql`EXCLUDED.quantity`,
+            status: "ordered",
           },
           target: [orderItemsTable.orderId, orderItemsTable.productId],
         })
@@ -271,15 +276,11 @@ export async function ordersRoutes(app: FastifyZod) {
         return sum + item.unitPrice * item.quantity;
       }, 0);
 
-      await app.db
+      const [order] = await app.db
         .update(ordersTable)
         .set({ totalAmount: finalTotalAmount })
-        .where(eq(ordersTable.id, orderId));
-
-      const [order] = await app.db
-        .select({ tableId: ordersTable.tableId })
-        .from(ordersTable)
-        .where(eq(ordersTable.id, orderId));
+        .where(eq(ordersTable.id, orderId))
+        .returning({ tableId: ordersTable.tableId });
 
       if (order) {
         await app.db

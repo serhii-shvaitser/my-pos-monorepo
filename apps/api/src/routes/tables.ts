@@ -1,4 +1,4 @@
-import { FastifyZod, ErrorSchema } from "../types";
+import { z } from "zod";
 import { eq } from "drizzle-orm";
 import {
   tablesTable,
@@ -7,8 +7,8 @@ import {
   UpdateTableSchema,
   SelectTableSchema,
 } from "@repo/db";
-import { OrderWithItemsSchema } from "@repo/types";
-import { z } from "zod";
+import { OrderWithItemsSchema, ErrorSchema } from "@repo/types";
+import { FastifyZod } from "../types";
 
 export async function tablesRoutes(app: FastifyZod) {
   app.get(
@@ -127,6 +127,7 @@ export async function tablesRoutes(app: FastifyZod) {
           and(eq(orders.tableId, tableId), eq(orders.status, "open")),
         with: {
           items: {
+            where: (items, { ne }) => ne(items.status, "cancelled"),
             with: { product: true },
           },
         },
