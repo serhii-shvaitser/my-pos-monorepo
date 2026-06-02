@@ -17,8 +17,8 @@ export function EmptyState() {
         </EmptyMedia>
         <EmptyTitle>No Menu Items</EmptyTitle>
         <EmptyDescription>
-          You haven&apos;t created any projects yet. Get started by creating
-          your first project.
+          Select items from the menu on the right to start an order for this
+          table.
         </EmptyDescription>
       </EmptyHeader>
     </Empty>

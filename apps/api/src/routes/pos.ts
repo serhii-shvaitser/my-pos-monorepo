@@ -1,4 +1,4 @@
-import { FastifyZod, ErrorSchema } from "../types";
+import { FastifyZod } from "../types";
 import { PosMenuSchema } from "@repo/types";
 
 export async function posRoutes(app: FastifyZod) {

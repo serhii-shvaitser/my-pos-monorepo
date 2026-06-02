@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createOrdersService } from "@repo/api-client";
-import { client } from "@/entities/session";
-import { tablesApi } from "@/entities/table";
-import { type OrderResponse, type OrdersResponse } from "@repo/types";
+import { client } from "@/shared/api";
+import { type OrdersResponse } from "@repo/types";
+import { type LocalOrderItem } from "./model/types";
 
 export const ordersApi = createOrdersService(client);
 
@@ -14,13 +14,32 @@ export function useOrders() {
   return { isPending, isError, error, data };
 }
 
-export function useTableOrder(tableId: string) {
-  const { isPending, isError, error, data } = useQuery<OrderResponse>({
-    queryKey: ["orders", "active", tableId],
-    queryFn: () => tablesApi.getTableOrder(tableId),
-    enabled: !!tableId,
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
+export function useSaveOrder() {
+  const queryClient = useQueryClient();
+
+  const { isPending, mutate } = useMutation({
+    mutationFn: ({
+      orderId,
+      orderItems,
+    }: {
+      tableId: string;
+      orderId: string;
+      orderItems: Omit<LocalOrderItem, "product">[];
+    }) => {
+      const sanitizesOrderItems = orderItems.map(({ productId, quantity }) => ({
+        productId,
+        quantity,
+      }));
+      return ordersApi.saveOrder(orderId, sanitizesOrderItems);
+    },
+    onSuccess: (_data, { tableId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["orders", "active", tableId],
+      });
+    },
+    onError: () => {
+      // TODO: implement error handler
+    },
   });
-  return { isPending, isError, error, data };
+  return { saveOrder: mutate, isPending };
 }
