@@ -6,4 +6,11 @@ export const createOrdersService = (client: AxiosInstance) => ({
     const { data } = await client.get<OrderResponse[]>(`/orders`);
     return data;
   },
+  saveOrder: async (orderId: string, items: any) => {
+    const response = await client.post<OrderResponse[]>(
+      `/orders/${orderId}/items`,
+      items,
+    );
+    return response.data;
+  },
 });
