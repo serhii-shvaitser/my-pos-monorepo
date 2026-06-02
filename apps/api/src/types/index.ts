@@ -18,12 +18,6 @@ export type FastifyZod = FastifyInstance<
   ZodTypeProvider
 >;
 
-export const ErrorSchema = z.object({
-  error: z.string(),
-  message: z.string(),
-  details: z.string().optional(),
-});
-
 export const GetOrdersQuerySchema = SelectOrderSchema.pick({
   tableId: true,
   status: true,

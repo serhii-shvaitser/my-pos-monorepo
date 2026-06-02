@@ -76,3 +76,11 @@ export interface FailedRequest {
   onSuccess: (newAccessToken: string) => void;
   onFailure: () => void;
 }
+
+export const ErrorSchema = z.object({
+  error: z.string(),
+  message: z.string(),
+  details: z.string().optional(),
+});
+
+export type ApiError = z.infer<typeof ErrorSchema>;
