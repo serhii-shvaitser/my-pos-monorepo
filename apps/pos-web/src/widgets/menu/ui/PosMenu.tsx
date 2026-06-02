@@ -9,14 +9,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 
 import { usePosMenu } from "../api";
-import { useOrderStore } from "@/features/manage-order";
+import { useOrderStore } from "@/entities/order";
 
 export function PosMenu() {
   const { data: categories } = usePosMenu();
   const { addOrderItem } = useOrderStore();
 
   return (
-    <Card className="flex-3 p-0 overflow-hidden">
+    <Card className="flex-2 p-0 overflow-hidden">
       <CardHeader className="p-2 gap-0 bg-gray-50 border-b">
         <CardTitle>Menu</CardTitle>
       </CardHeader>
@@ -26,24 +26,27 @@ export function PosMenu() {
           className="w-[400px] w-full"
         >
           <TabsList className="w-full">
-            {categories?.map((category) => (
-              <TabsTrigger value={category.id}>{category.name}</TabsTrigger>
+            {categories?.map(({ id, name }) => (
+              <TabsTrigger key={id} value={id}>
+                {name}
+              </TabsTrigger>
             ))}
           </TabsList>
 
           {categories?.map((category) => (
-            <TabsContent value={category.id}>
+            <TabsContent key={category.id} value={category.id}>
               <Card>
                 <CardHeader>
                   <CardTitle>{category.name}</CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-muted-foreground grid grid-cols-4 gap-4">
+                <CardContent className="text-sm text-muted-foreground grid grid-cols-3 gap-2">
                   {category.products.map((product) => (
-                    <Card>
-                      <CardContent
-                        onClick={() => addOrderItem(product)}
-                        className="text-center"
-                      >
+                    <Card
+                      key={product.id}
+                      onClick={() => addOrderItem(product)}
+                      className="p-3 items-center"
+                    >
+                      <CardContent className="flex flex-1 items-center text-xs p-0">
                         {product.name}
                       </CardContent>
                     </Card>
