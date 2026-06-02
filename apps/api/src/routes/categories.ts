@@ -1,4 +1,3 @@
-import { FastifyZod, ErrorSchema } from "../types";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import {
@@ -7,6 +6,9 @@ import {
   UpdateCategorySchema,
   SelectCategorySchema,
 } from "@repo/db";
+
+import { FastifyZod } from "../types";
+import { ErrorSchema } from "@repo/types";
 
 export async function categoriesRoutes(app: FastifyZod) {
   app.get(

@@ -1,4 +1,4 @@
-import { FastifyZod, ErrorSchema } from "../types";
+import { z } from "zod";
 import { eq } from "drizzle-orm";
 import {
   productsTable,
@@ -6,7 +6,9 @@ import {
   UpdateProductSchema,
   SelectProductSchema,
 } from "@repo/db";
-import { z } from "zod";
+
+import { ErrorSchema } from "@repo/types";
+import { FastifyZod } from "../types";
 
 export async function productsRoutes(app: FastifyZod) {
   app.get(
