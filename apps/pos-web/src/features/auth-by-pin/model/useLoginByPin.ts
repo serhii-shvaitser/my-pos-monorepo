@@ -1,9 +1,9 @@
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
+import { type ApiError } from "@repo/types";
 import { toast } from "sonner";
 
-import { authApi } from "@/entities/session";
-import { saveSession } from "@/entities/session";
+import { saveSession, authApi } from "@/entities/session";
 import { type LoginCredentials, type SessionData } from "@repo/types";
 import { type LoginOptions } from "./types";
 
@@ -15,7 +15,7 @@ export function useLoginByPin({ onLoginError }: LoginOptions = {}) {
 
   const { mutate, isPending } = useMutation<
     SessionData,
-    Error,
+    ApiError,
     LoginCredentials
   >({
     mutationFn: (credentials) => authApi.login(credentials),
