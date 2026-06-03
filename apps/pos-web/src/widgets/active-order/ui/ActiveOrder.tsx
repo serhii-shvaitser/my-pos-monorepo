@@ -37,21 +37,21 @@ export function ActiveOrder({ tableId }: ActiveOrderProps) {
   }
 
   return (
-    <Card className="flex-1 p-0 overflow-hidden">
-      <CardHeader className="p-2 gap-0 bg-gray-50 border-b">
-        <CardTitle className="flex justify-between items-center">
+    <Card className="flex-1 overflow-hidden p-0">
+      <CardHeader className="gap-0 border-b bg-gray-50 p-2">
+        <CardTitle className="flex items-center justify-between">
           <span>Current Order</span>
           <Badge className="bg-green-200 text-green-700 dark:bg-green-950 dark:text-green-300">
             {orderStatus}
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 text-sm px-4">
+      <CardContent className="flex-1 px-4 text-sm">
         {!orderItems?.length ? (
           <EmptyState />
         ) : (
           <>
-            <ScrollArea className="flex-1 h-full w-full">
+            <ScrollArea className="h-full w-full flex-1">
               {orderItems.map(({ productId, product, quantity }) => (
                 <OrderListItem
                   key={productId}
@@ -72,7 +72,7 @@ export function ActiveOrder({ tableId }: ActiveOrderProps) {
           </>
         )}
       </CardContent>
-      <CardFooter className="bg-gray-50 border-t px-0">
+      <CardFooter className="border-t bg-gray-50 px-0">
         <SendToKitchenButton tableId={tableId} />
       </CardFooter>
     </Card>

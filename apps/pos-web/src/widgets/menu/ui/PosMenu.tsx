@@ -16,8 +16,8 @@ export function PosMenu() {
   const { addOrderItem } = useOrderStore();
 
   return (
-    <Card className="flex-2 p-0 overflow-hidden">
-      <CardHeader className="p-2 gap-0 bg-gray-50 border-b">
+    <Card className="flex-2 overflow-hidden p-0">
+      <CardHeader className="gap-0 border-b bg-gray-50 p-2">
         <CardTitle>Menu</CardTitle>
       </CardHeader>
       <CardContent className="flex-1">
@@ -39,14 +39,14 @@ export function PosMenu() {
                 <CardHeader>
                   <CardTitle>{category.name}</CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-muted-foreground grid grid-cols-3 gap-2">
+                <CardContent className="text-muted-foreground grid grid-cols-3 gap-2 text-sm">
                   {category.products.map((product) => (
                     <Card
                       key={product.id}
                       onClick={() => addOrderItem(product)}
-                      className="p-3 items-center"
+                      className="items-center p-3"
                     >
-                      <CardContent className="flex flex-1 items-center text-xs p-0">
+                      <CardContent className="flex flex-1 items-center p-0 text-xs">
                         {product.name}
                       </CardContent>
                     </Card>
@@ -57,7 +57,7 @@ export function PosMenu() {
           ))}
         </Tabs>
       </CardContent>
-      <CardFooter className="p-2 bg-gray-50 border-t">Menu Footer</CardFooter>
+      <CardFooter className="border-t bg-gray-50 p-2">Menu Footer</CardFooter>
     </Card>
   );
 }

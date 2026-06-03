@@ -12,7 +12,7 @@ export function OrderListItem({
   return (
     <>
       <div className="flex justify-between gap-2 py-2 text-xs">
-        <div className="flex flex-1 gap-2 items-center justify-between">
+        <div className="flex flex-1 items-center justify-between gap-2">
           <p className="truncate">{name}</p>
           <span>{formatPrice(price)}</span>
         </div>

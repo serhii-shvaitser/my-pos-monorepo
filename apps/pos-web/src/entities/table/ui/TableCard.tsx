@@ -5,9 +5,9 @@ import { Badge } from "@/shared/ui/badge";
 export function TableCard({ tableData }: TableCardProps) {
   const { capacity, number, status } = tableData;
   return (
-    <Card className="hover:border-primary transition-colors cursor-pointer">
+    <Card className="hover:border-primary cursor-pointer transition-colors">
       <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
+        <div className="flex items-start justify-between">
           <CardTitle className="text-lg">Стіл {number}</CardTitle>
           <Badge variant="secondary">{capacity} місця</Badge>
         </div>

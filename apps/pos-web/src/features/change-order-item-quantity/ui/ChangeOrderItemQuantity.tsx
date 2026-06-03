@@ -19,7 +19,7 @@ export function ChangeOrderItemQuantity({
         >
           <Minus />
         </Button>
-        <div className="border px-2 flex items-center">
+        <div className="flex items-center border px-2">
           <span>{quantity}</span>
         </div>
         <Button

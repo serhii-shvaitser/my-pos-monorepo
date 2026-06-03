@@ -7,7 +7,7 @@ export function OrderPage() {
   const { tableId } = useParams({ from: "/_authenticated/tables/$tableId" });
 
   return (
-    <div className="flex gap-2 items-stretch flex-1">
+    <div className="flex flex-1 items-stretch gap-2">
       <ActiveOrder tableId={tableId} />
       <PosMenu />
     </div>

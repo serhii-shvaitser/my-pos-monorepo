@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+// import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "@/shared/ui/sonner";
 import type { AppRouterContext } from "@/app/router";
 

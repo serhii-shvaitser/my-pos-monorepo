@@ -9,7 +9,7 @@ export function LogoutButton() {
   return (
     <SidebarMenuButton
       onClick={logout}
-      className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90 flex items-center gap-2"
+      className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90 flex cursor-pointer items-center gap-2"
     >
       <LogOut className="size-4" />
       <span>Logout</span>
