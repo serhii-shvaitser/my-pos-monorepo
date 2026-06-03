@@ -1,0 +1,9 @@
+{
+  "apps/pos-web/src/**/*.{ts,tsx}": [
+    "prettier --write",
+    "eslint --fix",
+    "steiger"
+  ],
+  "packages/**/*.{ts,tsx}": ["prettier --write", "eslint --fix"],
+  "**/*.{json,md,css}": ["prettier --write"]
+}
