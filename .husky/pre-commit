@@ -1,1 +1,15 @@
+# Get the current local branch name
+local_branch_name="$(git rev-parse --abbrev-ref HEAD)"
+
+# Regex to validate the branch name pattern
+valid_branch_regex="^(feature|bugfix|hotfix|chore|refactor)\/[a-zA-Z0-9._-]+$"
+
+# If it's not main/master and the name doesn't match the regex — block the commit
+if [ "$local_branch_name" != "main" ] && [ "$local_branch_name" != "master" ] && [[ ! $local_branch_name =~ $valid_branch_regex ]]; then
+    echo "❌ Error: Invalid branch name format '$local_branch_name'!"
+    echo "Branch names must start with: feature/, bugfix/, hotfix/, chore/, or refactor/"
+    echo "Example: feature/pos-orders-page"
+    exit 1
+fi
+
 pnpm exec lint-staged
