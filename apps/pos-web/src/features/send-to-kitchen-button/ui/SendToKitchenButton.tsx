@@ -2,7 +2,7 @@ import { useShallow } from "zustand/react/shallow";
 
 import { useOrderStore, useSaveOrder } from "@/entities/order";
 import { type SendToKitchenButtonProps } from "../model/types";
-import { ActionButton } from "@/shared/ui";
+import { ActionButton } from "@/shared/custom-components/ActionButton";
 
 export function SendToKitchenButton({ tableId }: SendToKitchenButtonProps) {
   const { saveOrder, isPending } = useSaveOrder();

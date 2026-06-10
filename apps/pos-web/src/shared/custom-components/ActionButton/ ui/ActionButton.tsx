@@ -1,8 +1,8 @@
 import { cn } from "@/shared/lib/utils";
 import { type ActionButtonProps } from "../model/types";
 
-import { Button } from "../../../button";
-import { Spinner } from "../../../spinner";
+import { Button } from "../../../ui/button";
+import { Spinner } from "../../../ui/spinner";
 
 export function ActionButton({
   isButtonDisabled,
