@@ -1,7 +1,7 @@
 import { useOrderStore } from "@/entities/order";
 import { type ChangeOrderItemQuantityProps } from "../model/types";
 import { Button } from "@/shared/ui/button";
-import { ButtonGroup } from "@/shared/ui/button-group";
+import { ButtonGroup, ButtonGroupText } from "@/shared/ui/button-group";
 import { Plus, Minus } from "lucide-react";
 
 export function ChangeOrderItemQuantity({
@@ -19,9 +19,7 @@ export function ChangeOrderItemQuantity({
         >
           <Minus />
         </Button>
-        <div className="flex items-center border px-2">
-          <span>{quantity}</span>
-        </div>
+        <ButtonGroupText>{quantity}</ButtonGroupText>
         <Button
           variant="secondary"
           size="xs"

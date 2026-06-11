@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useLoginByPin } from "../model/useLoginByPin";
 
-import { Button } from "@/shared/ui/button";
-import { Spinner } from "@/shared/ui/spinner";
 import {
   Card,
   CardContent,
@@ -13,6 +11,7 @@ import {
 } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
+import { ActionButton } from "@/shared/ui/action-button";
 
 export function LoginForm() {
   const [code, setCode] = useState("W01");
@@ -28,6 +27,8 @@ export function LoginForm() {
     e.preventDefault();
     login({ code, pin });
   };
+
+  const isLoginButtonDisabled = isPending || pin.length != 4;
 
   return (
     <Card className="w-87 shadow-xl">
@@ -67,14 +68,14 @@ export function LoginForm() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button
+          <ActionButton
             type="submit"
-            className="w-full bg-orange-600 hover:bg-orange-700"
-            disabled={isPending || pin.length != 4}
+            className="bg-orange-600 hover:bg-orange-700"
+            isDisabled={isLoginButtonDisabled}
+            isPending={isPending}
           >
-            {isPending && <Spinner data-icon="inline-start" />}
-            Увійти
-          </Button>
+            Login
+          </ActionButton>
         </CardFooter>
       </form>
     </Card>

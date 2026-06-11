@@ -1,9 +1,8 @@
 import { useShallow } from "zustand/react/shallow";
+
 import { useOrderStore, useSaveOrder } from "@/entities/order";
 import { type SendToKitchenButtonProps } from "../model/types";
-
-import { Button } from "@/shared/ui/button";
-import { Spinner } from "@/shared/ui/spinner";
+import { ActionButton } from "@/shared/ui";
 
 export function SendToKitchenButton({ tableId }: SendToKitchenButtonProps) {
   const { saveOrder, isPending } = useSaveOrder();
@@ -15,25 +14,23 @@ export function SendToKitchenButton({ tableId }: SendToKitchenButtonProps) {
     })),
   );
 
-  const isButtonDisabled =
+  const isDisabled =
     !orderItems || orderItems.length === 0 || !orderId || isPending;
 
   const handleSend = () => {
-    if (isButtonDisabled) {
+    if (isDisabled) {
       return;
     }
     saveOrder({ tableId, orderId, orderItems });
   };
 
   return (
-    <Button
-      variant="default"
-      className="w-full rounded-t-none"
-      disabled={isButtonDisabled}
+    <ActionButton
+      isDisabled={isDisabled}
       onClick={handleSend}
+      isPending={isPending}
     >
       Send to kitchen
-      {isPending && <Spinner data-icon="inline-start" />}
-    </Button>
+    </ActionButton>
   );
 }
