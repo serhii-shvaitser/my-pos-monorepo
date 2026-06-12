@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ActionButton } from "@/shared/ui/action-button";
 
 const meta: Meta<typeof ActionButton> = {
-  title: "Features/KitchenOrder/ActionButton",
+  title: "Shared/ActionButton",
   component: ActionButton,
   args: {
     children: "Action Button",
