@@ -11,7 +11,7 @@ export function RemoveOrderItemButton({
 
   return (
     <Button
-      variant="destructive"
+      variant="secondary"
       size="xs"
       onClick={() => removeOrderItem(productId)}
     >
