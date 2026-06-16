@@ -2,8 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { http, HttpResponse, delay } from "msw";
 import { userEvent, within, expect } from "storybook/test";
-import { SendToKitchenButton } from "./SendToKitchenButton";
+
 import { useOrderStore } from "@/entities/order";
+import { SendToKitchenButton } from "./SendToKitchenButton";
 
 const createTestQueryClient = () =>
   new QueryClient({
